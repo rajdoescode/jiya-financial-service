@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jiya Financial Services - Mutual Fund Sales & Commission Portal</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-hover: #1e40af;
+      --secondary: #0f766e;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --sip-badge: #dbeafe;
+      --sip-text: #1d4ed8;
+      --lump-badge: #fef3c7;
+      --lump-text: #b45309;
+      --danger: #dc2626;
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 60px; }
+
+    /* Top Navigation */
+    header { background: var(--primary); color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
+    header h1 { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+    header .subtitle { font-size: 0.8rem; opacity: 0.85; }
+    .header-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+    /* Tabs */
+    .tabs { display: flex; background: white; border-bottom: 1px solid var(--border); padding: 0 1.5rem; overflow-x: auto; gap: 0.5rem; }
+    .tab-btn { padding: 0.85rem 1.25rem; background: none; border: none; border-bottom: 3px solid transparent; color: var(--text-muted); font-weight: 600; cursor: pointer; font-size: 0.95rem; white-space: nowrap; }
+    .tab-btn:hover { color: var(--primary); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* Container */
+    .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Cards & Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--card-bg); padding: 1.25rem; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .stat-card .label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+    .stat-card .value { font-size: 1.5rem; font-weight: 700; margin-top: 0.35rem; color: var(--text); }
+    .stat-card.highlight { border-left: 4px solid var(--secondary); }
+    .stat-card.commission { border-left: 4px solid var(--primary); background: #f0fdf4; }
+    .stat-card.commission .value { color: var(--success); }
+
+    /* Forms */
+    .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+    .form-group input, .form-group select { padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; background: #fff; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); ring: 2px var(--primary); }
+    .form-group small { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem 1.2rem; border-radius: 6px; font-size: 0.9rem; font-weight: 600; border: none; cursor: pointer; transition: background 0.15s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: #e2e8f0; color: var(--text); }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-success { background: var(--secondary); color: white; }
+    .btn-success:hover { background: #0d9488; }
+    .btn-danger { background: #fee2e2; color: var(--danger); }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.8rem; }
+
+    /* Tables */
+    .table-container { overflow-x: auto; background: white; border-radius: var(--radius); border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { background: #f8fafc; padding: 0.75rem 1rem; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fcfcfd; }
+
+    /* Badges */
+    .badge { display: inline-block; padding: 0.2rem 0.55rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .badge-sip { background: var(--sip-badge); color: var(--sip-text); }
+    .badge-lumpsum { background: var(--lump-badge); color: var(--lump-text); }
+
+    /* Filters Bar */
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; background: white; padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 1.25rem; }
+
+    /* Statement View (Month-End Slip) */
+    .statement-card { background: white; border: 2px solid #cbd5e1; border-radius: var(--radius); padding: 2rem; max-width: 850px; margin: 0 auto; box-shadow: var(--shadow); }
+    .statement-header { text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 1.25rem; margin-bottom: 1.5rem; }
+    .statement-header h2 { font-size: 1.5rem; color: var(--primary); }
+    .statement-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .statement-summary-box { background: #f1f5f9; border-radius: 6px; padding: 1rem; margin: 1.5rem 0; display: flex; justify-content: space-around; text-align: center; }
+    .statement-summary-box .item-val { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+
+    /* Print styles */
+    @media print {
+      body { background: white; padding: 0; }
+      header, .tabs, .filter-bar, .no-print, .btn { display: none !important; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      .statement-card { border: none; box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+      .statement-header h2 { color: black; }
+      .statement-summary-box { background: #eee; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      table { font-size: 10pt; }
+      th, td { padding: 6px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div>
+      <h1>💼 Jiya Financial Services</h1>
+      <div class="subtitle">Mutual Fund Sales & Agent Commission Tracking Portal</div>
+    </div>
+    <div class="header-actions no-print">
+      <button class="btn btn-secondary btn-sm" onclick="exportDataJson()">💾 Backup Data</button>
+      <button class="btn btn-secondary btn-sm" onclick="triggerImportJson()">📂 Restore</button>
+      <input type="file" id="importFileInput" style="display:none" onchange="importDataJson(event)" accept=".json">
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs no-print">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Sales & Commission Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('add-investment')">➕ New Investment Entry</button>
+    <button class="tab-btn" onclick="switchTab('statement')">📄 Month-End Agent Slip</button>
+    <button class="tab-btn" onclick="switchTab('agents')">🤝 Agents & Commission Rates</button>
+    <button class="tab-btn" onclick="switchTab('clients')">👥 Clients</button>
+  </div>
+
+  <div class="container">
+
+    <!-- 1. DASHBOARD TAB -->
+    <div id="tab-dashboard" class="tab-content active">
+      <!-- Filters -->
+      <div class="filter-bar no-print">
+        <div class="form-group" style="min-width: 140px;">
+          <label>Agent Filter</label>
+          <select id="filterAgent" onchange="renderDashboard()">
+            <option value="ALL">All Agents</option>
+          </select>
+        </div>
+        <div class="form-group" style="min-width: 130px;">
+          <label>Type</label>
+          <select id="filterType" onchange="renderDashboard()">
+            <option value="ALL">All Types (SIP + Lumpsum)</option>
+            <option value="SIP">SIP Only</option>
+            <option value="Lumpsum">Lumpsum Only</option>
+          </select>
+        </div>
+        <div class="form-group" style="min-width: 130px;">
+          <label>Year</label>
+          <select id="filterYear" onchange="renderDashboard()">
+            <option value="ALL">All Years</option>
+            <option value="2026" selected>2026</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
+        <div class="form-group" style="min-width: 140px;">
+          <label>Month</label>
+          <select id="filterMonth" onchange="renderDashboard()">
+            <option value="ALL">All Months</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09" selected>September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div style="margin-left: auto; display: flex; gap: 0.5rem; align-items: flex-end;">
+          <button class="btn btn-secondary btn-sm" onclick="exportFilteredCSV()">📥 Export CSV</button>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="stats-grid">
+        <div class="stat-card highlight">
+          <div class="label">Total Investment Sales</div>
+          <div class="value" id="kpiTotalSales">₹0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Mutual Fund SIP Volume</div>
+          <div class="value" id="kpiTotalSip">₹0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Lumpsum Investment Volume</div>
+          <div class="value" id="kpiTotalLumpsum">₹0</div>
+        </div>
+        <div class="stat-card commission">
+          <div class="label">Total Commission Payable</div>
+          <div class="value" id="kpiTotalCommission">₹0</div>
+        </div>
+      </div>
+
+      <!-- Transactions List -->
+      <div class="card">
+        <div class="card-title">
+          <span>Investment Transactions</span>
+          <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);" id="txCountBadge">0 records</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Client Name</th>
+                <th>Mapped Agent</th>
+                <th>Type</th>
+                <th>Scheme / Remarks</th>
+                <th>Investment Amount</th>
+                <th>Commission %</th>
+                <th>Commission (₹)</th>
+                <th class="no-print">Action</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ADD INVESTMENT TAB -->
+    <div id="tab-add-investment" class="tab-content">
+      <div class="card" style="max-width: 750px; margin: 0 auto;">
+        <div class="card-title">➕ Record New Mutual Fund Investment</div>
+        <form id="investmentForm" onsubmit="saveInvestment(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="invClient">Select Client *</label>
+              <select id="invClient" required onchange="onClientSelected(this.value)">
+                <option value="">-- Choose Client --</option>
+              </select>
+              <small>Client automatically maps their assigned agent</small>
+            </div>
+
+            <div class="form-group">
+              <label for="invAgent">Mapped Agent *</label>
+              <select id="invAgent" required onchange="onAgentSelected(this.value)">
+                <option value="">-- Choose Agent --</option>
+              </select>
+              <small>Receives the commission on this transaction</small>
+            </div>
+
+            <div class="form-group">
+              <label for="invType">Investment Type *</label>
+              <select id="invType" required>
+                <option value="SIP">Mutual Fund SIP</option>
+                <option value="Lumpsum">Lumpsum Investment</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="invAmount">Investment Amount (₹) *</label>
+              <input type="number" id="invAmount" min="100" step="1" required placeholder="e.g. 50000" oninput="calculateLiveCommission()">
+            </div>
+
+            <div class="form-group">
+              <label for="invRate">Agent Commission Rate (%) *</label>
+              <input type="number" id="invRate" step="0.01" min="0" max="100" required placeholder="e.g. 1.5" oninput="calculateLiveCommission()">
+              <small>Auto-filled from Agent's fixed rate (can adjust if needed)</small>
+            </div>
+
+            <div class="form-group">
+              <label for="invDate">Investment Date *</label>
+              <input type="date" id="invDate" required>
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label for="invScheme">Mutual Fund Scheme / Note (Optional)</label>
+              <input type="text" id="invScheme" placeholder="e.g. SBI Bluechip Fund / HDFC Midcap Opp">
+            </div>
+          </div>
+
+          <!-- Live Commission Preview Box -->
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 1rem; margin: 1.25rem 0; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 0.85rem; color: #166534; font-weight: 600;">Calculated Commission to Agent:</div>
+              <div style="font-size: 0.8rem; color: #15803d;" id="commFormulaText">Amount × Rate% = Commission</div>
+            </div>
+            <div style="font-size: 1.6rem; font-weight: 700; color: #15803d;" id="commPreviewAmount">₹0.00</div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+            <button type="button" class="btn btn-secondary" onclick="resetInvestmentForm()">Reset</button>
+            <button type="submit" class="btn btn-primary">Save Investment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. MONTH-END AGENT SLIP TAB -->
+    <div id="tab-statement" class="tab-content">
+      <div class="filter-bar no-print" style="max-width: 850px; margin: 0 auto 1.5rem auto;">
+        <div class="form-group" style="flex: 1;">
+          <label>Select Agent</label>
+          <select id="stmtAgent" onchange="renderAgentStatement()">
+            <!-- Agents populated -->
+          </select>
+        </div>
+        <div class="form-group" style="min-width: 120px;">
+          <label>Year</label>
+          <select id="stmtYear" onchange="renderAgentStatement()">
+            <option value="2026" selected>2026</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
+        <div class="form-group" style="min-width: 140px;">
+          <label>Month</label>
+          <select id="stmtMonth" onchange="renderAgentStatement()">
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09" selected>September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+          <button class="btn btn-primary" onclick="window.print()">🖨️ Print Statement</button>
+          <button class="btn btn-success" onclick="copyWhatsAppSummary()">💬 Copy WhatsApp Text</button>
+        </div>
+      </div>
+
+      <!-- Printable Statement Body -->
+      <div class="statement-card" id="statementPrintArea">
+        <div class="statement-header">
+          <h2>JIYA FINANCIAL SERVICES</h2>
+          <div style="font-size: 0.95rem; color: #475569; font-weight: 500; margin-top: 0.2rem;">
+            Agent Mutual Fund Sales & Commission Settlement Statement
+          </div>
+        </div>
+
+        <div class="statement-meta">
+          <div>
+            <strong>Agent Name:</strong> <span id="stmtAgentName">-</span><br>
+            <strong>Mobile:</strong> <span id="stmtAgentPhone">-</span><br>
+            <strong>Fixed Commission Rate:</strong> <span id="stmtAgentRate">-</span>%
+          </div>
+          <div style="text-align: right;">
+            <strong>Settlement Period:</strong> <span id="stmtPeriodText">-</span><br>
+            <strong>Statement Date:</strong> <span id="stmtGeneratedDate">-</span><br>
+            <strong>Status:</strong> <span class="badge badge-sip" style="background:#e0f2fe; color:#0369a1;">Verified</span>
+          </div>
+        </div>
+
+        <!-- Summary Figures Box -->
+        <div class="statement-summary-box">
+          <div>
+            <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">SIP VOLUME</div>
+            <div class="item-val" id="stmtSipTotal">₹0</div>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">LUMPSUM VOLUME</div>
+            <div class="item-val" id="stmtLumpTotal">₹0</div>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">TOTAL SALES VOLUME</div>
+            <div class="item-val" id="stmtSalesTotal">₹0</div>
+          </div>
+          <div style="border-left: 2px solid #cbd5e1; padding-left: 1.5rem;">
+            <div style="font-size: 0.8rem; color: #15803d; font-weight: 700;">NET COMMISSION PAYABLE</div>
+            <div class="item-val" style="color: #15803d;" id="stmtCommTotal">₹0</div>
+          </div>
+        </div>
+
+        <!-- Breakdown Table -->
+        <h4 style="margin: 1.5rem 0 0.5rem 0; font-size: 0.95rem; color: #334155;">Detailed Transactions Breakdown</h4>
+        <div class="table-container" style="border-radius: 4px;">
+          <table>
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th>Date</th>
+                <th>Client Name</th>
+                <th>Type</th>
+                <th>Scheme</th>
+                <th style="text-align: right;">Amount</th>
+                <th style="text-align: right;">Rate %</th>
+                <th style="text-align: right;">Commission</th>
+              </tr>
+            </thead>
+            <tbody id="stmtTableBody">
+              <!-- Items -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 3rem; display: flex; justify-content: space-between; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; font-size: 0.85rem; color: #64748b;">
+          <div>Prepared By: <strong>Jiya Financial Services</strong></div>
+          <div style="border-top: 1px dashed #94a3b8; width: 180px; text-align: center; padding-top: 0.25rem;">Agent Signature / Acknowledgement</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. AGENTS TAB -->
+    <div id="tab-agents" class="tab-content">
+      <div style="display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem;">
+        <!-- Add Agent Form -->
+        <div class="card">
+          <div class="card-title">➕ Add New Agent</div>
+          <form onsubmit="saveAgent(event)">
+            <div class="form-group" style="margin-bottom: 0.85rem;">
+              <label for="agentName">Agent Full Name *</label>
+              <input type="text" id="agentName" required placeholder="e.g. Rahul Sharma">
+            </div>
+            <div class="form-group" style="margin-bottom: 0.85rem;">
+              <label for="agentPhone">Mobile Number</label>
+              <input type="tel" id="agentPhone" placeholder="e.g. 9876543210">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label for="agentRate">Fixed Commission Rate (%) *</label>
+              <input type="number" id="agentRate" step="0.01" min="0" max="100" required placeholder="e.g. 1.5" value="1.5">
+              <small>This fixed % applies automatically to all mapped clients</small>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Save Agent</button>
+          </form>
+        </div>
+
+        <!-- Agents List -->
+        <div class="card">
+          <div class="card-title">Registered Agents & Rates</div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Agent Name</th>
+                  <th>Mobile</th>
+                  <th>Fixed Rate (%)</th>
+                  <th>Total Sales</th>
+                  <th>Total Commission</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="agentsTableBody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. CLIENTS TAB -->
+    <div id="tab-clients" class="tab-content">
+      <div style="display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem;">
+        <!-- Add Client Form -->
+        <div class="card">
+          <div class="card-title">➕ Add Client & Map to Agent</div>
+          <form onsubmit="saveClient(event)">
+            <div class="form-group" style="margin-bottom: 0.85rem;">
+              <label for="clientName">Client Full Name *</label>
+              <input type="text" id="clientName" required placeholder="e.g. Anjali Verma">
+            </div>
+            <div class="form-group" style="margin-bottom: 0.85rem;">
+              <label for="clientPhone">Mobile Number</label>
+              <input type="tel" id="clientPhone" placeholder="e.g. 9811223344">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label for="clientAgent">Map With Agent *</label>
+              <select id="clientAgent" required>
+                <option value="">-- Choose Agent --</option>
+              </select>
+              <small>Investments by this client default to this agent</small>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Save Client</button>
+          </form>
+        </div>
+
+        <!-- Clients List -->
+        <div class="card">
+          <div class="card-title">Registered Clients</div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client Name</th>
+                  <th>Mobile</th>
+                  <th>Mapped Agent</th>
+                  <th>Agent Comm %</th>
+                  <th>Total Investments</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTableBody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Initial Seed Data for immediate testing
+    const DEFAULT_DATA = {
+      agents: [
+        { id: "A1", name: "Ramesh Sharma", phone: "9820011223", rate: 1.5 },
+        { id: "A2", name: "Pooja Mehta", phone: "9890044556", rate: 2.0 },
+        { id: "A3", name: "Vikram Patel", phone: "9876501234", rate: 1.25 }
+      ],
+      clients: [
+        { id: "C1", name: "Amitabh Sen", phone: "9910011111", agentId: "A1" },
+        { id: "C2", name: "Deepika Padukone", phone: "9920022222", agentId: "A1" },
+        { id: "C3", name: "Sunil Gavaskar", phone: "9930033333", agentId: "A2" },
+        { id: "C4", name: "Rohit Bansal", phone: "9940044444", agentId: "A3" }
+      ],
+      investments: [
+        { id: "T1", clientId: "C1", agentId: "A1", type: "SIP", amount: 15000, rate: 1.5, commission: 225.00, date: "2026-09-05", scheme: "SBI Bluechip Direct Growth" },
+        { id: "T2", clientId: "C2", agentId: "A1", type: "Lumpsum", amount: 100000, rate: 1.5, commission: 1500.00, date: "2026-09-12", scheme: "HDFC Flexi Cap Fund" },
+        { id: "T3", clientId: "C3", agentId: "A2", type: "Lumpsum", amount: 250000, rate: 2.0, commission: 5000.00, date: "2026-09-15", scheme: "ICICI Prudential Equity & Debt" },
+        { id: "T4", clientId: "C4", agentId: "A3", type: "SIP", amount: 25000, rate: 1.25, commission: 312.50, date: "2026-09-20", scheme: "Nippon India Small Cap Fund" },
+        { id: "T5", clientId: "C1", agentId: "A1", type: "SIP", amount: 15000, rate: 1.5, commission: 225.00, date: "2026-08-05", scheme: "SBI Bluechip Direct Growth" }
+      ]
+    };
+
+    // Load from LocalStorage
+    function loadStore() {
+      const saved = localStorage.getItem("jiya_financial_store_v1");
+      if (saved) {
+        try { return JSON.parse(saved); } catch (e) { console.error(e); }
+      }
+      localStorage.setItem("jiya_financial_store_v1", JSON.stringify(DEFAULT_DATA));
+      return DEFAULT_DATA;
+    }
+
+    let store = loadStore();
+
+    function persistStore() {
+      localStorage.setItem("jiya_financial_store_v1", JSON.stringify(store));
+    }
+
+    // Currency Formatter
+    function formatINR(amount) {
+      return "₹" + Number(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Switch Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+
+      const target = document.getElementById("tab-" + tabId);
+      if (target) target.classList.add("active");
+
+      // Match button
+      const buttons = Array.from(document.querySelectorAll(".tab-btn"));
+      const btn = buttons.find(b => b.getAttribute("onclick") && b.getAttribute("onclick").includes(tabId));
+      if (btn) btn.classList.add("active");
+
+      // Refresh specific tab contents
+      if (tabId === "dashboard") renderDashboard();
+      if (tabId === "statement") renderAgentStatement();
+      if (tabId === "agents") renderAgentsList();
+      if (tabId === "clients") renderClientsList();
+      if (tabId === "add-investment") populateInvestmentDropdowns();
+    }
+
+    // Populate Dropdowns
+    function populateDropdowns() {
+      // Filter agent dropdown
+      const filterAgent = document.getElementById("filterAgent");
+      const currentFilter = filterAgent.value;
+      filterAgent.innerHTML = `<option value="ALL">All Agents</option>` + store.agents.map(a => `<option value="${a.id}">${a.name} (${a.rate}%)</option>`).join("");
+      if (currentFilter) filterAgent.value = currentFilter;
+
+      // Statement agent dropdown
+      const stmtAgent = document.getElementById("stmtAgent");
+      stmtAgent.innerHTML = store.agents.map(a => `<option value="${a.id}">${a.name} (${a.rate}%)</option>`).join("");
+
+      // Client mapping agent dropdown
+      const clientAgent = document.getElementById("clientAgent");
+      clientAgent.innerHTML = `<option value="">-- Choose Agent --</option>` + store.agents.map(a => `<option value="${a.id}">${a.name} (${a.rate}%)</option>`).join("");
+
+      populateInvestmentDropdowns();
+    }
+
+    function populateInvestmentDropdowns() {
+      const invClient = document.getElementById("invClient");
+      const currentClient = invClient.value;
+      invClient.innerHTML = `<option value="">-- Choose Client --</option>` + store.clients.map(c => {
+        const ag = store.agents.find(a => a.id === c.agentId);
+        const agName = ag ? ` (Agent: ${ag.name})` : "";
+        return `<option value="${c.id}">${c.name}${agName}</option>`;
+      }).join("");
+      if (currentClient) invClient.value = currentClient;
+
+      const invAgent = document.getElementById("invAgent");
+      const currentAgent = invAgent.value;
+      invAgent.innerHTML = `<option value="">-- Choose Agent --</option>` + store.agents.map(a => `<option value="${a.id}">${a.name} (${a.rate}%)</option>`).join("");
+      if (currentAgent) invAgent.value = currentAgent;
+
+      // Set today's date if empty
+      const invDate = document.getElementById("invDate");
+      if (!invDate.value) {
+        invDate.value = new Date().toISOString().split("T")[0];
+      }
+    }
+
+    function onClientSelected(clientId) {
+      if (!clientId) return;
+      const client = store.clients.find(c => c.id === clientId);
+      if (client && client.agentId) {
+        document.getElementById("invAgent").value = client.agentId;
+        onAgentSelected(client.agentId);
+      }
+    }
+
+    function onAgentSelected(agentId) {
+      if (!agentId) return;
+      const agent = store.agents.find(a => a.id === agentId);
+      if (agent) {
+        document.getElementById("invRate").value = agent.rate;
+        calculateLiveCommission();
+      }
+    }
+
+    function calculateLiveCommission() {
+      const amt = parseFloat(document.getElementById("invAmount").value) || 0;
+      const rate = parseFloat(document.getElementById("invRate").value) || 0;
+      const comm = (amt * rate) / 100;
+      document.getElementById("commPreviewAmount").textContent = formatINR(comm);
+      document.getElementById("commFormulaText").textContent = `${formatINR(amt)} × ${rate}% = ${formatINR(comm)}`;
+    }
+
+    // Save New Investment
+    function saveInvestment(e) {
+      e.preventDefault();
+      const clientId = document.getElementById("invClient").value;
+      const agentId = document.getElementById("invAgent").value;
+      const type = document.getElementById("invType").value;
+      const amount = parseFloat(document.getElementById("invAmount").value);
+      const rate = parseFloat(document.getElementById("invRate").value);
+      const date = document.getElementById("invDate").value;
+      const scheme = document.getElementById("invScheme").value.trim();
+
+      if (!clientId || !agentId || isNaN(amount) || amount <= 0 || isNaN(rate)) {
+        alert("Please fill all required fields properly.");
+        return;
+      }
+
+      const commission = Math.round(((amount * rate) / 100) * 100) / 100;
+
+      const newTx = {
+        id: "T" + Date.now(),
+        clientId,
+        agentId,
+        type,
+        amount,
+        rate,
+        commission,
+        date,
+        scheme: scheme || "Mutual Fund Investment"
+      };
+
+      store.investments.unshift(newTx);
+      persistStore();
+      alert("✅ Investment recorded successfully!");
+      resetInvestmentForm();
+      switchTab("dashboard");
+    }
+
+    function resetInvestmentForm() {
+      document.getElementById("investmentForm").reset();
+      document.getElementById("invDate").value = new Date().toISOString().split("T")[0];
+      calculateLiveCommission();
+    }
+
+    // Render Dashboard
+    function renderDashboard() {
+      const filterAgent = document.getElementById("filterAgent").value;
+      const filterType = document.getElementById("filterType").value;
+      const filterYear = document.getElementById("filterYear").value;
+      const filterMonth = document.getElementById("filterMonth").value;
+
+      let filtered = store.investments.filter(tx => {
+        if (filterAgent !== "ALL" && tx.agentId !== filterAgent) return false;
+        if (filterType !== "ALL" && tx.type !== filterType) return false;
+
+        const [y, m] = tx.date.split("-");
+        if (filterYear !== "ALL" && y !== filterYear) return false;
+        if (filterMonth !== "ALL" && m !== filterMonth) return false;
+        return true;
+      });
+
+      // KPIs
+      let totalSales = 0;
+      let totalSip = 0;
+      let totalLump = 0;
+      let totalComm = 0;
+
+      filtered.forEach(tx => {
+        totalSales += tx.amount;
+        totalComm += tx.commission;
+        if (tx.type === "SIP") totalSip += tx.amount;
+        else totalLump += tx.amount;
+      });
+
+      document.getElementById("kpiTotalSales").textContent = formatINR(totalSales);
+      document.getElementById("kpiTotalSip").textContent = formatINR(totalSip);
+      document.getElementById("kpiTotalLumpsum").textContent = formatINR(totalLump);
+      document.getElementById("kpiTotalCommission").textContent = formatINR(totalComm);
+      document.getElementById("txCountBadge").textContent = `${filtered.length} transaction(s)`;
+
+      // Table
+      const tbody = document.getElementById("transactionsTableBody");
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">No investments found matching selected filters.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(tx => {
+        const client = store.clients.find(c => c.id === tx.clientId);
+        const agent = store.agents.find(a => a.id === tx.agentId);
+        const clientName = client ? client.name : "Unknown Client";
+        const agentName = agent ? agent.name : "Unknown Agent";
+        const badgeClass = tx.type === "SIP" ? "badge-sip" : "badge-lumpsum";
+
+        return `
+          <tr>
+            <td>${tx.date}</td>
+            <td><strong>${clientName}</strong></td>
+            <td>${agentName}</td>
+            <td><span class="badge ${badgeClass}">${tx.type}</span></td>
+            <td>${tx.scheme || "-"}</td>
+            <td><strong>${formatINR(tx.amount)}</strong></td>
+            <td>${tx.rate}%</td>
+            <td style="color: var(--success); font-weight: 700;">${formatINR(tx.commission)}</td>
+            <td class="no-print">
+              <button class="btn btn-danger btn-sm" onclick="deleteTransaction('${tx.id}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function deleteTransaction(txId) {
+      if (!confirm("Are you sure you want to delete this investment record?")) return;
+      store.investments = store.investments.filter(t => t.id !== txId);
+      persistStore();
+      renderDashboard();
+    }
+
+    // Render Month-End Statement
+    function renderAgentStatement() {
+      const agentId = document.getElementById("stmtAgent").value;
+      const year = document.getElementById("stmtYear").value;
+      const month = document.getElementById("stmtMonth").value;
+
+      const agent = store.agents.find(a => a.id === agentId);
+      if (!agent) return;
+
+      const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const periodLabel = `${monthNames[parseInt(month, 10)]} ${year}`;
+
+      document.getElementById("stmtAgentName").textContent = agent.name;
+      document.getElementById("stmtAgentPhone").textContent = agent.phone || "N/A";
+      document.getElementById("stmtAgentRate").textContent = agent.rate;
+      document.getElementById("stmtPeriodText").textContent = periodLabel;
+      document.getElementById("stmtGeneratedDate").textContent = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+
+      // Transactions for this agent in this month
+      const txs = store.investments.filter(t => {
+        if (t.agentId !== agentId) return false;
+        const [y, m] = t.date.split("-");
+        return y === year && m === month;
+      });
+
+      let sipTotal = 0;
+      let lumpTotal = 0;
+      let salesTotal = 0;
+      let commTotal = 0;
+
+      txs.forEach(t => {
+        salesTotal += t.amount;
+        commTotal += t.commission;
+        if (t.type === "SIP") sipTotal += t.amount;
+        else lumpTotal += t.amount;
+      });
+
+      document.getElementById("stmtSipTotal").textContent = formatINR(sipTotal);
+      document.getElementById("stmtLumpTotal").textContent = formatINR(lumpTotal);
+      document.getElementById("stmtSalesTotal").textContent = formatINR(salesTotal);
+      document.getElementById("stmtCommTotal").textContent = formatINR(commTotal);
+
+      const tbody = document.getElementById("stmtTableBody");
+      if (txs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94a3b8; padding: 1.5rem;">No transactions recorded for ${agent.name} in ${periodLabel}.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = txs.map(t => {
+        const client = store.clients.find(c => c.id === t.clientId);
+        return `
+          <tr>
+            <td>${t.date}</td>
+            <td><strong>${client ? client.name : "Client"}</strong></td>
+            <td><span class="badge ${t.type === 'SIP' ? 'badge-sip' : 'badge-lumpsum'}">${t.type}</span></td>
+            <td>${t.scheme || "-"}</td>
+            <td style="text-align: right;">${formatINR(t.amount)}</td>
+            <td style="text-align: right;">${t.rate}%</td>
+            <td style="text-align: right; font-weight: 700; color: #15803d;">${formatINR(t.commission)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // Copy WhatsApp Summary
+    function copyWhatsAppSummary() {
+      const agentId = document.getElementById("stmtAgent").value;
+      const year = document.getElementById("stmtYear").value;
+      const month = document.getElementById("stmtMonth").value;
+      const agent = store.agents.find(a => a.id === agentId);
+      if (!agent) return;
+
+      const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const periodLabel = `${monthNames[parseInt(month, 10)]} ${year}`;
+
+      const txs = store.investments.filter(t => {
+        if (t.agentId !== agentId) return false;
+        const [y, m] = t.date.split("-");
+        return y === year && m === month;
+      });
+
+      let sipTotal = 0, lumpTotal = 0, salesTotal = 0, commTotal = 0;
+      txs.forEach(t => {
+        salesTotal += t.amount;
+        commTotal += t.commission;
+        if (t.type === "SIP") sipTotal += t.amount;
+        else lumpTotal += t.amount;
+      });
+
+      let text = `*JIYA FINANCIAL SERVICES*\n`;
+      text += `*Commission Statement - ${periodLabel}*\n`;
+      text += `------------------------------------\n`;
+      text += `👤 *Agent:* ${agent.name} (${agent.rate}% Commission)\n`;
+      text += `📈 *SIP Sales:* ${formatINR(sipTotal)}\n`;
+      text += `💰 *Lumpsum Sales:* ${formatINR(lumpTotal)}\n`;
+      text += `📊 *Total Sales Volume:* ${formatINR(salesTotal)}\n`;
+      text += `------------------------------------\n`;
+      text += `💵 *NET COMMISSION PAYABLE: ${formatINR(commTotal)}*\n`;
+      text += `Total Transactions: ${txs.length}\n`;
+      text += `------------------------------------\n`;
+      text += `Thank you for your business!`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("📋 Copied statement summary to clipboard! You can now paste directly into WhatsApp.");
+      }).catch(err => {
+        prompt("Copy this text:", text);
+      });
+    }
+
+    // Save Agent
+    function saveAgent(e) {
+      e.preventDefault();
+      const name = document.getElementById("agentName").value.trim();
+      const phone = document.getElementById("agentPhone").value.trim();
+      const rate = parseFloat(document.getElementById("agentRate").value);
+
+      if (!name || isNaN(rate)) {
+        alert("Please provide valid Agent Name and Commission Rate %.");
+        return;
+      }
+
+      const newAgent = {
+        id: "A" + Date.now(),
+        name,
+        phone,
+        rate
+      };
+
+      store.agents.push(newAgent);
+      persistStore();
+      populateDropdowns();
+      renderAgentsList();
+      e.target.reset();
+      document.getElementById("agentRate").value = "1.5";
+      alert(`✅ Agent "${name}" registered with fixed ${rate}% commission!`);
+    }
+
+    function renderAgentsList() {
+      const tbody = document.getElementById("agentsTableBody");
+      tbody.innerHTML = store.agents.map(a => {
+        // Calculate total sales & commission for this agent
+        let totalSales = 0;
+        let totalComm = 0;
+        store.investments.filter(t => t.agentId === a.id).forEach(t => {
+          totalSales += t.amount;
+          totalComm += t.commission;
+        });
+
+        return `
+          <tr>
+            <td><strong>${a.name}</strong></td>
+            <td>${a.phone || "-"}</td>
+            <td><span class="badge badge-sip">${a.rate}%</span></td>
+            <td>${formatINR(totalSales)}</td>
+            <td style="font-weight: 700; color: var(--success);">${formatINR(totalComm)}</td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="viewAgentSlip('${a.id}')">View Slip</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteAgent('${a.id}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function viewAgentSlip(agentId) {
+      document.getElementById("stmtAgent").value = agentId;
+      switchTab("statement");
+    }
+
+    function deleteAgent(agentId) {
+      const hasClients = store.clients.some(c => c.agentId === agentId);
+      const hasTx = store.investments.some(t => t.agentId === agentId);
+      if (hasClients || hasTx) {
+        if (!confirm("This agent has mapped clients or transactions. Deleting them may leave orphaned records. Continue?")) return;
+      } else {
+        if (!confirm("Delete this agent?")) return;
+      }
+
+      store.agents = store.agents.filter(a => a.id !== agentId);
+      persistStore();
+      populateDropdowns();
+      renderAgentsList();
+    }
+
+    // Save Client
+    function saveClient(e) {
+      e.preventDefault();
+      const name = document.getElementById("clientName").value.trim();
+      const phone = document.getElementById("clientPhone").value.trim();
+      const agentId = document.getElementById("clientAgent").value;
+
+      if (!name || !agentId) {
+        alert("Please enter Client Name and select an Agent to map.");
+        return;
+      }
+
+      const newClient = {
+        id: "C" + Date.now(),
+        name,
+        phone,
+        agentId
+      };
+
+      store.clients.push(newClient);
+      persistStore();
+      populateDropdowns();
+      renderClientsList();
+      e.target.reset();
+      alert(`✅ Client "${name}" mapped with agent successfully!`);
+    }
+
+    function renderClientsList() {
+      const tbody = document.getElementById("clientsTableBody");
+      tbody.innerHTML = store.clients.map(c => {
+        const agent = store.agents.find(a => a.id === c.agentId);
+        const agentName = agent ? agent.name : '<span style="color:red">Unassigned</span>';
+        const agentRate = agent ? agent.rate + "%" : "-";
+
+        let totalInvested = 0;
+        store.investments.filter(t => t.clientId === c.id).forEach(t => totalInvested += t.amount);
+
+        return `
+          <tr>
+            <td><strong>${c.name}</strong></td>
+            <td>${c.phone || "-"}</td>
+            <td>${agentName}</td>
+            <td>${agentRate}</td>
+            <td><strong>${formatINR(totalInvested)}</strong></td>
+            <td>
+              <button class="btn btn-primary btn-sm" onclick="quickInvestForClient('${c.id}')">+ Invest</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function quickInvestForClient(clientId) {
+      switchTab("add-investment");
+      document.getElementById("invClient").value = clientId;
+      onClientSelected(clientId);
+    }
+
+    function deleteClient(clientId) {
+      if (!confirm("Delete this client record?")) return;
+      store.clients = store.clients.filter(c => c.id !== clientId);
+      persistStore();
+      populateDropdowns();
+      renderClientsList();
+    }
+
+    // Export CSV
+    function exportFilteredCSV() {
+      const filterAgent = document.getElementById("filterAgent").value;
+      const filterType = document.getElementById("filterType").value;
+      const filterYear = document.getElementById("filterYear").value;
+      const filterMonth = document.getElementById("filterMonth").value;
+
+      let filtered = store.investments.filter(tx => {
+        if (filterAgent !== "ALL" && tx.agentId !== filterAgent) return false;
+        if (filterType !== "ALL" && tx.type !== filterType) return false;
+        const [y, m] = tx.date.split("-");
+        if (filterYear !== "ALL" && y !== filterYear) return false;
+        if (filterMonth !== "ALL" && m !== filterMonth) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        alert("No transactions to export.");
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Transaction ID,Date,Client Name,Agent Name,Type,Scheme,Amount (INR),Commission Rate (%),Commission Amount (INR)\n";
+
+      filtered.forEach(t => {
+        const client = store.clients.find(c => c.id === t.clientId);
+        const agent = store.agents.find(a => a.id === t.agentId);
+        const cName = client ? client.name.replace(/,/g, " ") : "";
+        const aName = agent ? agent.name.replace(/,/g, " ") : "";
+        const scheme = (t.scheme || "").replace(/,/g, " ");
+        csvContent += `${t.id},${t.date},"${cName}","${aName}",${t.type},"${scheme}",${t.amount},${t.rate},${t.commission}\n`;
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Jiya_Financial_Sales_${new Date().toISOString().split("T")[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Backup & Restore
+    function exportDataJson() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(store, null, 2));
+      const dlAnchor = document.createElement("a");
+      dlAnchor.setAttribute("href", dataStr);
+      dlAnchor.setAttribute("download", `jiya_financial_backup_${new Date().toISOString().split("T")[0]}.json`);
+      dlAnchor.click();
+    }
+
+    function triggerImportJson() {
+      document.getElementById("importFileInput").click();
+    }
+
+    function importDataJson(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed.agents && parsed.clients && parsed.investments) {
+            store = parsed;
+            persistStore();
+            populateDropdowns();
+            renderDashboard();
+            alert("✅ Data restored successfully!");
+          } else {
+            alert("Invalid backup file structure.");
+          }
+        } catch (err) {
+          alert("Error parsing JSON file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Initialize on load
+    window.addEventListener("DOMContentLoaded", () => {
+      populateDropdowns();
+      renderDashboard();
+      calculateLiveCommission();
+    });
+  </script>
+</body>
+</html>
