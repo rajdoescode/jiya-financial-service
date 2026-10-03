@@ -88,6 +88,8 @@
     .badge { display: inline-block; padding: 0.2rem 0.55rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
     .badge-sip { background: var(--sip-badge); color: var(--sip-text); }
     .badge-lumpsum { background: var(--lump-badge); color: var(--lump-text); }
+    .badge-cob { background: #f3e8ff; color: #7e22ce; }
+    .badge-switch { background: #e0f2fe; color: #0284c7; }
 
     /* Filters Bar */
     .filter-bar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; background: white; padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 1.25rem; }
@@ -149,12 +151,14 @@
             <option value="ALL">All Agents</option>
           </select>
         </div>
-        <div class="form-group" style="min-width: 130px;">
+        <div class="form-group" style="min-width: 150px;">
           <label>Type</label>
           <select id="filterType" onchange="renderDashboard()">
-            <option value="ALL">All Types (SIP + Lumpsum)</option>
+            <option value="ALL">All Types</option>
             <option value="SIP">SIP Only</option>
             <option value="Lumpsum">Lumpsum Only</option>
+            <option value="Change of Broker">Change of Broker Only</option>
+            <option value="Switch">Switch Only</option>
           </select>
         </div>
         <div class="form-group" style="min-width: 130px;">
@@ -201,6 +205,14 @@
         <div class="stat-card">
           <div class="label">Lumpsum Investment Volume</div>
           <div class="value" id="kpiTotalLumpsum">₹0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Change of Broker Volume</div>
+          <div class="value" id="kpiTotalCob">₹0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Switch Volume</div>
+          <div class="value" id="kpiTotalSwitch">₹0</div>
         </div>
         <div class="stat-card commission">
           <div class="label">Total Commission Payable</div>
@@ -261,9 +273,11 @@
 
             <div class="form-group">
               <label for="invType">Investment Type *</label>
-              <select id="invType" required>
+              <select id="invType" required onchange="onInvestmentTypeChange()">
                 <option value="SIP">Mutual Fund SIP</option>
                 <option value="Lumpsum">Lumpsum Investment</option>
+                <option value="Change of Broker">Change of Broker</option>
+                <option value="Switch">Switch</option>
               </select>
             </div>
 
@@ -275,7 +289,7 @@
             <div class="form-group">
               <label for="invRate">Agent Commission Rate (%) *</label>
               <input type="number" id="invRate" step="0.01" min="0" max="100" required placeholder="e.g. 1.5" oninput="calculateLiveCommission()">
-              <small>Auto-filled from Agent's fixed rate (can adjust if needed)</small>
+              <small>Auto-filled from Agent's rate for this type (can adjust if needed)</small>
             </div>
 
             <div class="form-group">
@@ -358,7 +372,7 @@
           <div>
             <strong>Agent Name:</strong> <span id="stmtAgentName">-</span><br>
             <strong>Mobile:</strong> <span id="stmtAgentPhone">-</span><br>
-            <strong>Fixed Commission Rate:</strong> <span id="stmtAgentRate">-</span>%
+            <strong>Commission Rates:</strong> <span id="stmtAgentRate">-</span>
           </div>
           <div style="text-align: right;">
             <strong>Settlement Period:</strong> <span id="stmtPeriodText">-</span><br>
@@ -368,21 +382,29 @@
         </div>
 
         <!-- Summary Figures Box -->
-        <div class="statement-summary-box">
+        <div class="statement-summary-box" style="display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: space-around;">
           <div>
-            <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">SIP VOLUME</div>
+            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">SIP VOLUME</div>
             <div class="item-val" id="stmtSipTotal">₹0</div>
           </div>
           <div>
-            <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">LUMPSUM VOLUME</div>
+            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">LUMPSUM VOLUME</div>
             <div class="item-val" id="stmtLumpTotal">₹0</div>
           </div>
           <div>
-            <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">TOTAL SALES VOLUME</div>
+            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">CHANGE OF BROKER</div>
+            <div class="item-val" id="stmtCobTotal">₹0</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">SWITCH VOLUME</div>
+            <div class="item-val" id="stmtSwitchTotal">₹0</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">TOTAL SALES VOLUME</div>
             <div class="item-val" id="stmtSalesTotal">₹0</div>
           </div>
-          <div style="border-left: 2px solid #cbd5e1; padding-left: 1.5rem;">
-            <div style="font-size: 0.8rem; color: #15803d; font-weight: 700;">NET COMMISSION PAYABLE</div>
+          <div style="border-left: 2px solid #cbd5e1; padding-left: 1.25rem;">
+            <div style="font-size: 0.75rem; color: #15803d; font-weight: 700;">NET COMMISSION PAYABLE</div>
             <div class="item-val" style="color: #15803d;" id="stmtCommTotal">₹0</div>
           </div>
         </div>
@@ -417,25 +439,52 @@
 
     <!-- 4. AGENTS TAB -->
     <div id="tab-agents" class="tab-content">
-      <div style="display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem;">
-        <!-- Add Agent Form -->
+      <div style="display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem;">
+        <!-- Add / Edit Agent Form -->
         <div class="card">
-          <div class="card-title">➕ Add New Agent</div>
+          <div class="card-title" id="agentFormTitle">➕ Add New Agent</div>
           <form onsubmit="saveAgent(event)">
-            <div class="form-group" style="margin-bottom: 0.85rem;">
+            <input type="hidden" id="agentEditId" value="">
+            <div class="form-group" style="margin-bottom: 0.75rem;">
               <label for="agentName">Agent Full Name *</label>
               <input type="text" id="agentName" required placeholder="e.g. Rahul Sharma">
             </div>
-            <div class="form-group" style="margin-bottom: 0.85rem;">
+            <div class="form-group" style="margin-bottom: 0.75rem;">
               <label for="agentPhone">Mobile Number</label>
               <input type="tel" id="agentPhone" placeholder="e.g. 9876543210">
             </div>
-            <div class="form-group" style="margin-bottom: 1.25rem;">
-              <label for="agentRate">Fixed Commission Rate (%) *</label>
-              <input type="number" id="agentRate" step="0.01" min="0" max="100" required placeholder="e.g. 1.5" value="1.5">
-              <small>This fixed % applies automatically to all mapped clients</small>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="font-size: 0.85rem; font-weight: 600; color: var(--text); display: block; margin-bottom: 0.35rem;">
+                Commission Rates by Investment Type (%) *
+              </label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                <div class="form-group">
+                  <small style="font-weight: 600;">SIP Rate (%)</small>
+                  <input type="number" id="agentRateSip" step="0.01" min="0" max="100" required value="1.5">
+                </div>
+                <div class="form-group">
+                  <small style="font-weight: 600;">Lumpsum Rate (%)</small>
+                  <input type="number" id="agentRateLump" step="0.01" min="0" max="100" required value="1.0">
+                </div>
+                <div class="form-group">
+                  <small style="font-weight: 600;">Change of Broker (%)</small>
+                  <input type="number" id="agentRateCob" step="0.01" min="0" max="100" required value="0.5">
+                </div>
+                <div class="form-group">
+                  <small style="font-weight: 600;">Switch Rate (%)</small>
+                  <input type="number" id="agentRateSwitch" step="0.01" min="0" max="100" required value="0.5">
+                </div>
+              </div>
+              <small style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.35rem;">
+                Rates auto-apply to this agent's transactions by investment type
+              </small>
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Save Agent</button>
+
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="submit" id="agentSubmitBtn" class="btn btn-primary" style="flex: 1;">Save Agent</button>
+              <button type="button" id="agentCancelEditBtn" class="btn btn-secondary" style="display: none;" onclick="resetAgentForm()">Cancel</button>
+            </div>
           </form>
         </div>
 
@@ -448,7 +497,7 @@
                 <tr>
                   <th>Agent Name</th>
                   <th>Mobile</th>
-                  <th>Fixed Rate (%)</th>
+                  <th>Commission Rates (%)</th>
                   <th>Total Sales</th>
                   <th>Total Commission</th>
                   <th>Action</th>
@@ -519,9 +568,9 @@
     // Initial Seed Data for immediate testing
     const DEFAULT_DATA = {
       agents: [
-        { id: "A1", name: "Ramesh Sharma", phone: "9820011223", rate: 1.5 },
-        { id: "A2", name: "Pooja Mehta", phone: "9890044556", rate: 2.0 },
-        { id: "A3", name: "Vikram Patel", phone: "9876501234", rate: 1.25 }
+        { id: "A1", name: "Ramesh Sharma", phone: "9820011223", rates: { "SIP": 1.5, "Lumpsum": 1.0, "Change of Broker": 0.5, "Switch": 0.5 } },
+        { id: "A2", name: "Pooja Mehta", phone: "9890044556", rates: { "SIP": 2.0, "Lumpsum": 1.5, "Change of Broker": 0.75, "Switch": 0.75 } },
+        { id: "A3", name: "Vikram Patel", phone: "9876501234", rates: { "SIP": 1.25, "Lumpsum": 1.0, "Change of Broker": 0.5, "Switch": 0.5 } }
       ],
       clients: [
         { id: "C1", name: "Amitabh Sen", phone: "9910011111", agentId: "A1" },
@@ -531,27 +580,79 @@
       ],
       investments: [
         { id: "T1", clientId: "C1", agentId: "A1", type: "SIP", amount: 15000, rate: 1.5, commission: 225.00, date: "2026-09-05", scheme: "SBI Bluechip Direct Growth" },
-        { id: "T2", clientId: "C2", agentId: "A1", type: "Lumpsum", amount: 100000, rate: 1.5, commission: 1500.00, date: "2026-09-12", scheme: "HDFC Flexi Cap Fund" },
-        { id: "T3", clientId: "C3", agentId: "A2", type: "Lumpsum", amount: 250000, rate: 2.0, commission: 5000.00, date: "2026-09-15", scheme: "ICICI Prudential Equity & Debt" },
-        { id: "T4", clientId: "C4", agentId: "A3", type: "SIP", amount: 25000, rate: 1.25, commission: 312.50, date: "2026-09-20", scheme: "Nippon India Small Cap Fund" },
+        { id: "T2", clientId: "C2", agentId: "A1", type: "Lumpsum", amount: 100000, rate: 1.0, commission: 1000.00, date: "2026-09-12", scheme: "HDFC Flexi Cap Fund" },
+        { id: "T3", clientId: "C3", agentId: "A2", type: "Change of Broker", amount: 250000, rate: 0.75, commission: 1875.00, date: "2026-09-15", scheme: "ICICI Prudential Equity & Debt" },
+        { id: "T4", clientId: "C4", agentId: "A3", type: "Switch", amount: 50000, rate: 0.5, commission: 250.00, date: "2026-09-20", scheme: "Nippon India Small Cap Fund" },
         { id: "T5", clientId: "C1", agentId: "A1", type: "SIP", amount: 15000, rate: 1.5, commission: 225.00, date: "2026-08-05", scheme: "SBI Bluechip Direct Growth" }
       ]
     };
 
+    // Helper: Get Agent rate for specific investment type
+    function getAgentRate(agent, type) {
+      if (!agent) return 0;
+      if (agent.rates && agent.rates[type] !== undefined && agent.rates[type] !== null && agent.rates[type] !== "") {
+        return parseFloat(agent.rates[type]) || 0;
+      }
+      if (agent.rate !== undefined && agent.rate !== null && agent.rate !== "") {
+        return parseFloat(agent.rate) || 0;
+      }
+      return 0;
+    }
+
+    // Helper: Return badge HTML for investment type
+    function getTypeBadge(type) {
+      if (type === "SIP") return `<span class="badge badge-sip">SIP</span>`;
+      if (type === "Lumpsum") return `<span class="badge badge-lumpsum">Lumpsum</span>`;
+      if (type === "Change of Broker") return `<span class="badge badge-cob">Change of Broker</span>`;
+      if (type === "Switch") return `<span class="badge badge-switch">Switch</span>`;
+      return `<span class="badge">${type}</span>`;
+    }
+
+    // Ensure agents have per-type rates object
+    function normalizeStore(s) {
+      if (s && Array.isArray(s.agents)) {
+        s.agents.forEach(a => {
+          if (!a.rates) {
+            const fallback = a.rate !== undefined ? a.rate : 1.5;
+            a.rates = {
+              "SIP": fallback,
+              "Lumpsum": fallback,
+              "Change of Broker": fallback,
+              "Switch": fallback
+            };
+          }
+        });
+      }
+    }
+
     // Load from LocalStorage
     function loadStore() {
-      const saved = localStorage.getItem("jiya_financial_store_v1");
+      const saved = localStorage.getItem("jiya_financial_store_v2");
       if (saved) {
-        try { return JSON.parse(saved); } catch (e) { console.error(e); }
+        try {
+          const parsed = JSON.parse(saved);
+          normalizeStore(parsed);
+          return parsed;
+        } catch (e) { console.error(e); }
       }
-      localStorage.setItem("jiya_financial_store_v1", JSON.stringify(DEFAULT_DATA));
+      const oldSaved = localStorage.getItem("jiya_financial_store_v1");
+      if (oldSaved) {
+        try {
+          const parsed = JSON.parse(oldSaved);
+          normalizeStore(parsed);
+          localStorage.setItem("jiya_financial_store_v2", JSON.stringify(parsed));
+          return parsed;
+        } catch (e) { console.error(e); }
+      }
+      normalizeStore(DEFAULT_DATA);
+      localStorage.setItem("jiya_financial_store_v2", JSON.stringify(DEFAULT_DATA));
       return DEFAULT_DATA;
     }
 
     let store = loadStore();
 
     function persistStore() {
-      localStorage.setItem("jiya_financial_store_v1", JSON.stringify(store));
+      localStorage.setItem("jiya_financial_store_v2", JSON.stringify(store));
     }
 
     // Currency Formatter
@@ -585,16 +686,16 @@
       // Filter agent dropdown
       const filterAgent = document.getElementById("filterAgent");
       const currentFilter = filterAgent.value;
-      filterAgent.innerHTML = `<option value="ALL">All Agents</option>` + store.agents.map(a => `<option value="${a.id}">${a.name} (${a.rate}%)</option>`).join("");
+      filterAgent.innerHTML = `<option value="ALL">All Agents</option>` + store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
       if (currentFilter) filterAgent.value = currentFilter;
 
       // Statement agent dropdown
       const stmtAgent = document.getElementById("stmtAgent");
-      stmtAgent.innerHTML = store.agents.map(a => `<option value="${a.id}">${a.name} (${a.rate}%)</option>`).join("");
+      stmtAgent.innerHTML = store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
 
       // Client mapping agent dropdown
       const clientAgent = document.getElementById("clientAgent");
-      clientAgent.innerHTML = `<option value="">-- Choose Agent --</option>` + store.agents.map(a => `<option value="${a.id}">${a.name} (${a.rate}%)</option>`).join("");
+      clientAgent.innerHTML = `<option value="">-- Choose Agent --</option>` + store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
 
       populateInvestmentDropdowns();
     }
@@ -611,13 +712,17 @@
 
       const invAgent = document.getElementById("invAgent");
       const currentAgent = invAgent.value;
-      invAgent.innerHTML = `<option value="">-- Choose Agent --</option>` + store.agents.map(a => `<option value="${a.id}">${a.name} (${a.rate}%)</option>`).join("");
+      invAgent.innerHTML = `<option value="">-- Choose Agent --</option>` + store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
       if (currentAgent) invAgent.value = currentAgent;
 
       // Set today's date if empty
       const invDate = document.getElementById("invDate");
       if (!invDate.value) {
         invDate.value = new Date().toISOString().split("T")[0];
+      }
+
+      if (currentAgent) {
+        onAgentSelected(currentAgent);
       }
     }
 
@@ -632,9 +737,21 @@
 
     function onAgentSelected(agentId) {
       if (!agentId) return;
+      const type = document.getElementById("invType").value;
       const agent = store.agents.find(a => a.id === agentId);
       if (agent) {
-        document.getElementById("invRate").value = agent.rate;
+        document.getElementById("invRate").value = getAgentRate(agent, type);
+        calculateLiveCommission();
+      }
+    }
+
+    function onInvestmentTypeChange() {
+      const agentId = document.getElementById("invAgent").value;
+      if (!agentId) return;
+      const type = document.getElementById("invType").value;
+      const agent = store.agents.find(a => a.id === agentId);
+      if (agent) {
+        document.getElementById("invRate").value = getAgentRate(agent, type);
         calculateLiveCommission();
       }
     }
@@ -687,7 +804,9 @@
     function resetInvestmentForm() {
       document.getElementById("investmentForm").reset();
       document.getElementById("invDate").value = new Date().toISOString().split("T")[0];
-      calculateLiveCommission();
+      const invAgent = document.getElementById("invAgent").value;
+      if (invAgent) onAgentSelected(invAgent);
+      else calculateLiveCommission();
     }
 
     // Render Dashboard
@@ -711,18 +830,24 @@
       let totalSales = 0;
       let totalSip = 0;
       let totalLump = 0;
+      let totalCob = 0;
+      let totalSwitch = 0;
       let totalComm = 0;
 
       filtered.forEach(tx => {
         totalSales += tx.amount;
         totalComm += tx.commission;
         if (tx.type === "SIP") totalSip += tx.amount;
-        else totalLump += tx.amount;
+        else if (tx.type === "Lumpsum") totalLump += tx.amount;
+        else if (tx.type === "Change of Broker") totalCob += tx.amount;
+        else if (tx.type === "Switch") totalSwitch += tx.amount;
       });
 
       document.getElementById("kpiTotalSales").textContent = formatINR(totalSales);
       document.getElementById("kpiTotalSip").textContent = formatINR(totalSip);
       document.getElementById("kpiTotalLumpsum").textContent = formatINR(totalLump);
+      document.getElementById("kpiTotalCob").textContent = formatINR(totalCob);
+      document.getElementById("kpiTotalSwitch").textContent = formatINR(totalSwitch);
       document.getElementById("kpiTotalCommission").textContent = formatINR(totalComm);
       document.getElementById("txCountBadge").textContent = `${filtered.length} transaction(s)`;
 
@@ -738,14 +863,13 @@
         const agent = store.agents.find(a => a.id === tx.agentId);
         const clientName = client ? client.name : "Unknown Client";
         const agentName = agent ? agent.name : "Unknown Agent";
-        const badgeClass = tx.type === "SIP" ? "badge-sip" : "badge-lumpsum";
 
         return `
           <tr>
             <td>${tx.date}</td>
             <td><strong>${clientName}</strong></td>
             <td>${agentName}</td>
-            <td><span class="badge ${badgeClass}">${tx.type}</span></td>
+            <td>${getTypeBadge(tx.type)}</td>
             <td>${tx.scheme || "-"}</td>
             <td><strong>${formatINR(tx.amount)}</strong></td>
             <td>${tx.rate}%</td>
@@ -779,7 +903,8 @@
 
       document.getElementById("stmtAgentName").textContent = agent.name;
       document.getElementById("stmtAgentPhone").textContent = agent.phone || "N/A";
-      document.getElementById("stmtAgentRate").textContent = agent.rate;
+      const ratesStr = `SIP: ${getAgentRate(agent, "SIP")}% | Lump: ${getAgentRate(agent, "Lumpsum")}% | COB: ${getAgentRate(agent, "Change of Broker")}% | Switch: ${getAgentRate(agent, "Switch")}%`;
+      document.getElementById("stmtAgentRate").textContent = ratesStr;
       document.getElementById("stmtPeriodText").textContent = periodLabel;
       document.getElementById("stmtGeneratedDate").textContent = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
@@ -792,6 +917,8 @@
 
       let sipTotal = 0;
       let lumpTotal = 0;
+      let cobTotal = 0;
+      let switchTotal = 0;
       let salesTotal = 0;
       let commTotal = 0;
 
@@ -799,11 +926,15 @@
         salesTotal += t.amount;
         commTotal += t.commission;
         if (t.type === "SIP") sipTotal += t.amount;
-        else lumpTotal += t.amount;
+        else if (t.type === "Lumpsum") lumpTotal += t.amount;
+        else if (t.type === "Change of Broker") cobTotal += t.amount;
+        else if (t.type === "Switch") switchTotal += t.amount;
       });
 
       document.getElementById("stmtSipTotal").textContent = formatINR(sipTotal);
       document.getElementById("stmtLumpTotal").textContent = formatINR(lumpTotal);
+      document.getElementById("stmtCobTotal").textContent = formatINR(cobTotal);
+      document.getElementById("stmtSwitchTotal").textContent = formatINR(switchTotal);
       document.getElementById("stmtSalesTotal").textContent = formatINR(salesTotal);
       document.getElementById("stmtCommTotal").textContent = formatINR(commTotal);
 
@@ -819,7 +950,7 @@
           <tr>
             <td>${t.date}</td>
             <td><strong>${client ? client.name : "Client"}</strong></td>
-            <td><span class="badge ${t.type === 'SIP' ? 'badge-sip' : 'badge-lumpsum'}">${t.type}</span></td>
+            <td>${getTypeBadge(t.type)}</td>
             <td>${t.scheme || "-"}</td>
             <td style="text-align: right;">${formatINR(t.amount)}</td>
             <td style="text-align: right;">${t.rate}%</td>
@@ -846,20 +977,30 @@
         return y === year && m === month;
       });
 
-      let sipTotal = 0, lumpTotal = 0, salesTotal = 0, commTotal = 0;
+      let sipTotal = 0, lumpTotal = 0, cobTotal = 0, switchTotal = 0, salesTotal = 0, commTotal = 0;
       txs.forEach(t => {
         salesTotal += t.amount;
         commTotal += t.commission;
         if (t.type === "SIP") sipTotal += t.amount;
-        else lumpTotal += t.amount;
+        else if (t.type === "Lumpsum") lumpTotal += t.amount;
+        else if (t.type === "Change of Broker") cobTotal += t.amount;
+        else if (t.type === "Switch") switchTotal += t.amount;
       });
 
       let text = `*JIYA FINANCIAL SERVICES*\n`;
       text += `*Commission Statement - ${periodLabel}*\n`;
       text += `------------------------------------\n`;
-      text += `👤 *Agent:* ${agent.name} (${agent.rate}% Commission)\n`;
+      text += `👤 *Agent:* ${agent.name}\n`;
+      text += `📊 *Commission Rates:*\n`;
+      text += `  • SIP: ${getAgentRate(agent, "SIP")}%\n`;
+      text += `  • Lumpsum: ${getAgentRate(agent, "Lumpsum")}%\n`;
+      text += `  • Change of Broker: ${getAgentRate(agent, "Change of Broker")}%\n`;
+      text += `  • Switch: ${getAgentRate(agent, "Switch")}%\n`;
+      text += `------------------------------------\n`;
       text += `📈 *SIP Sales:* ${formatINR(sipTotal)}\n`;
       text += `💰 *Lumpsum Sales:* ${formatINR(lumpTotal)}\n`;
+      text += `🔄 *Change of Broker:* ${formatINR(cobTotal)}\n`;
+      text += `🔀 *Switch Volume:* ${formatINR(switchTotal)}\n`;
       text += `📊 *Total Sales Volume:* ${formatINR(salesTotal)}\n`;
       text += `------------------------------------\n`;
       text += `💵 *NET COMMISSION PAYABLE: ${formatINR(commTotal)}*\n`;
@@ -877,29 +1018,80 @@
     // Save Agent
     function saveAgent(e) {
       e.preventDefault();
+      const editId = document.getElementById("agentEditId").value;
       const name = document.getElementById("agentName").value.trim();
       const phone = document.getElementById("agentPhone").value.trim();
-      const rate = parseFloat(document.getElementById("agentRate").value);
+      const sipRate = parseFloat(document.getElementById("agentRateSip").value) || 0;
+      const lumpRate = parseFloat(document.getElementById("agentRateLump").value) || 0;
+      const cobRate = parseFloat(document.getElementById("agentRateCob").value) || 0;
+      const switchRate = parseFloat(document.getElementById("agentRateSwitch").value) || 0;
 
-      if (!name || isNaN(rate)) {
-        alert("Please provide valid Agent Name and Commission Rate %.");
+      if (!name) {
+        alert("Please provide Agent Name.");
         return;
       }
 
-      const newAgent = {
-        id: "A" + Date.now(),
-        name,
-        phone,
-        rate
+      const rates = {
+        "SIP": sipRate,
+        "Lumpsum": lumpRate,
+        "Change of Broker": cobRate,
+        "Switch": switchRate
       };
 
-      store.agents.push(newAgent);
+      if (editId) {
+        const ag = store.agents.find(a => a.id === editId);
+        if (ag) {
+          ag.name = name;
+          ag.phone = phone;
+          ag.rates = rates;
+          ag.rate = sipRate;
+        }
+        alert(`✅ Agent "${name}" rates updated successfully!`);
+      } else {
+        const newAgent = {
+          id: "A" + Date.now(),
+          name,
+          phone,
+          rates,
+          rate: sipRate
+        };
+        store.agents.push(newAgent);
+        alert(`✅ Agent "${name}" registered with custom commission rates per investment type!`);
+      }
+
       persistStore();
       populateDropdowns();
       renderAgentsList();
-      e.target.reset();
-      document.getElementById("agentRate").value = "1.5";
-      alert(`✅ Agent "${name}" registered with fixed ${rate}% commission!`);
+      resetAgentForm();
+    }
+
+    function editAgent(agentId) {
+      const agent = store.agents.find(a => a.id === agentId);
+      if (!agent) return;
+      document.getElementById("agentEditId").value = agent.id;
+      document.getElementById("agentName").value = agent.name;
+      document.getElementById("agentPhone").value = agent.phone || "";
+      document.getElementById("agentRateSip").value = getAgentRate(agent, "SIP");
+      document.getElementById("agentRateLump").value = getAgentRate(agent, "Lumpsum");
+      document.getElementById("agentRateCob").value = getAgentRate(agent, "Change of Broker");
+      document.getElementById("agentRateSwitch").value = getAgentRate(agent, "Switch");
+      document.getElementById("agentFormTitle").textContent = "✏️ Edit Agent & Rates";
+      document.getElementById("agentSubmitBtn").textContent = "Update Agent";
+      document.getElementById("agentCancelEditBtn").style.display = "inline-block";
+      document.getElementById("agentName").focus();
+    }
+
+    function resetAgentForm() {
+      document.getElementById("agentEditId").value = "";
+      document.getElementById("agentName").value = "";
+      document.getElementById("agentPhone").value = "";
+      document.getElementById("agentRateSip").value = "1.5";
+      document.getElementById("agentRateLump").value = "1.0";
+      document.getElementById("agentRateCob").value = "0.5";
+      document.getElementById("agentRateSwitch").value = "0.5";
+      document.getElementById("agentFormTitle").textContent = "➕ Add New Agent";
+      document.getElementById("agentSubmitBtn").textContent = "Save Agent";
+      document.getElementById("agentCancelEditBtn").style.display = "none";
     }
 
     function renderAgentsList() {
@@ -913,16 +1105,31 @@
           totalComm += t.commission;
         });
 
+        const sipR = getAgentRate(a, "SIP");
+        const lumpR = getAgentRate(a, "Lumpsum");
+        const cobR = getAgentRate(a, "Change of Broker");
+        const switchR = getAgentRate(a, "Switch");
+
         return `
           <tr>
             <td><strong>${a.name}</strong></td>
             <td>${a.phone || "-"}</td>
-            <td><span class="badge badge-sip">${a.rate}%</span></td>
+            <td>
+              <div style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;">
+                <span><span class="badge badge-sip" style="padding: 0.1rem 0.35rem; font-size: 0.7rem;">SIP</span> <strong>${sipR}%</strong></span>
+                <span><span class="badge badge-lumpsum" style="padding: 0.1rem 0.35rem; font-size: 0.7rem;">Lump</span> <strong>${lumpR}%</strong></span>
+                <span><span class="badge badge-cob" style="padding: 0.1rem 0.35rem; font-size: 0.7rem;">COB</span> <strong>${cobR}%</strong></span>
+                <span><span class="badge badge-switch" style="padding: 0.1rem 0.35rem; font-size: 0.7rem;">Switch</span> <strong>${switchR}%</strong></span>
+              </div>
+            </td>
             <td>${formatINR(totalSales)}</td>
             <td style="font-weight: 700; color: var(--success);">${formatINR(totalComm)}</td>
             <td>
-              <button class="btn btn-secondary btn-sm" onclick="viewAgentSlip('${a.id}')">View Slip</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteAgent('${a.id}')">Delete</button>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <button class="btn btn-primary btn-sm" onclick="editAgent('${a.id}')">✏️ Edit Rates</button>
+                <button class="btn btn-secondary btn-sm" onclick="viewAgentSlip('${a.id}')">View Slip</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteAgent('${a.id}')">Delete</button>
+              </div>
             </td>
           </tr>
         `;
@@ -981,7 +1188,12 @@
       tbody.innerHTML = store.clients.map(c => {
         const agent = store.agents.find(a => a.id === c.agentId);
         const agentName = agent ? agent.name : '<span style="color:red">Unassigned</span>';
-        const agentRate = agent ? agent.rate + "%" : "-";
+        const agentRates = agent
+          ? `<div style="font-size: 0.75rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.1rem;">
+               <span>SIP: <strong>${getAgentRate(agent, "SIP")}%</strong> | Lump: <strong>${getAgentRate(agent, "Lumpsum")}%</strong></span>
+               <span>COB: <strong>${getAgentRate(agent, "Change of Broker")}%</strong> | Switch: <strong>${getAgentRate(agent, "Switch")}%</strong></span>
+             </div>`
+          : "-";
 
         let totalInvested = 0;
         store.investments.filter(t => t.clientId === c.id).forEach(t => totalInvested += t.amount);
@@ -991,7 +1203,7 @@
             <td><strong>${c.name}</strong></td>
             <td>${c.phone || "-"}</td>
             <td>${agentName}</td>
-            <td>${agentRate}</td>
+            <td>${agentRates}</td>
             <td><strong>${formatINR(totalInvested)}</strong></td>
             <td>
               <button class="btn btn-primary btn-sm" onclick="quickInvestForClient('${c.id}')">+ Invest</button>
@@ -1079,6 +1291,7 @@
         try {
           const parsed = JSON.parse(evt.target.result);
           if (parsed.agents && parsed.clients && parsed.investments) {
+            normalizeStore(parsed);
             store = parsed;
             persistStore();
             populateDropdowns();
