@@ -2,13 +2,13 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { AuthUserSession } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AdminPasswordDialog } from "./AdminPasswordDialog";
 import { toast } from "sonner";
 import {
-  Briefcase,
   KeyRound,
   Download,
   Upload,
@@ -97,10 +97,17 @@ export function Header({ user, onDataRestored }: HeaderProps) {
 
   return (
     <>
-      <header className="bg-[#1e3a8a] text-white px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-3 shadow-md">
+      <header className="bg-[#1e3a8a] text-white px-4 sm:px-6 py-3.5 flex flex-wrap justify-between items-center gap-3 shadow-md">
         <div className="flex items-center gap-3">
-          <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
-            <Briefcase className="w-6 h-6 text-white" />
+          <div className="bg-white p-1 rounded-xl shadow-md flex items-center justify-center shrink-0">
+            <Image
+              src="/logo.png"
+              alt="Jiya Financial Services"
+              width={38}
+              height={38}
+              priority
+              className="object-contain"
+            />
           </div>
           <div>
             <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">

@@ -8,7 +8,14 @@ export const metadata: Metadata = {
   description:
     "Mutual Fund Sales, Agent Commission Tracking, and Settlement Statement Portal by Jiya Financial Services",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/logo.png", type: "image/png" },
+    ],
+    apple: "/apple-icon.png",
+    shortcut: "/favicon.ico",
   },
 };
 

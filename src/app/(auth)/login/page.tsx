@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Briefcase, Lock, User, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Lock, User, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 export default function LoginPage() {
@@ -55,8 +56,17 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border border-white/20">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex p-3 rounded-2xl bg-blue-50 text-[#1e3a8a] mb-3 shadow-inner">
-            <Briefcase className="w-8 h-8" />
+          <div className="flex justify-center mb-3">
+            <div className="p-2.5 rounded-2xl bg-white shadow-lg border border-slate-100/80">
+              <Image
+                src="/logo.png"
+                alt="Jiya Financial Services"
+                width={64}
+                height={64}
+                priority
+                className="object-contain"
+              />
+            </div>
           </div>
           <h2 className="text-2xl font-black tracking-tight text-[#1e3a8a]">
             Jiya Financial Services

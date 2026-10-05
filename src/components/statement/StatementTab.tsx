@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { IAgent } from "@/types";
 import { formatINR } from "@/lib/utils/currency";
@@ -170,13 +171,22 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
       {/* Printable Statement Document */}
       <div className="statement-card bg-white border-2 border-slate-300 rounded-lg p-6 sm:p-10 max-w-4xl mx-auto shadow-sm">
         {/* Header */}
-        <div className="text-center border-b-2 border-dashed border-slate-300 pb-5 mb-6">
-          <h2 className="text-2xl font-black tracking-wide text-[#1e3a8a]">
-            JIYA FINANCIAL SERVICES
-          </h2>
-          <p className="text-sm font-medium text-slate-600 mt-1">
-            Agent Mutual Fund Sales & Commission Settlement Statement
-          </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center text-center gap-3 border-b-2 border-dashed border-slate-300 pb-5 mb-6">
+          <Image
+            src="/logo.png"
+            alt="Jiya Financial Services"
+            width={48}
+            height={48}
+            className="object-contain"
+          />
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black tracking-wide text-[#1e3a8a]">
+              JIYA FINANCIAL SERVICES
+            </h2>
+            <p className="text-xs sm:text-sm font-medium text-slate-600">
+              Agent Mutual Fund Sales & Commission Settlement Statement
+            </p>
+          </div>
         </div>
 
         {/* Metadata */}
