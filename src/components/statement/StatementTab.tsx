@@ -184,36 +184,38 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
         </div>
 
         {/* Action Buttons Row */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-1 border-t border-slate-100">
+        <div className="pt-2.5 sm:pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
+          {/* Primary Action on Mobile: WhatsApp CTA */}
           <Button
-            variant="default"
-            size="sm"
-            onClick={handlePrint}
-            className="flex-1 sm:flex-none h-10 sm:h-9 gap-1.5"
-          >
-            <Printer className="w-4 h-4" />
-            Print Statement
-          </Button>
-
-          <Button
-            variant="success"
-            size="sm"
+            type="button"
             onClick={handleSendWhatsApp}
-            className="flex-1 sm:flex-none h-10 sm:h-9 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="w-full sm:w-auto h-11 sm:h-9 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-xl shadow-sm text-sm flex items-center justify-center gap-2 active:scale-[0.99] transition-all order-1 sm:order-2"
           >
-            <Send className="w-4 h-4" />
-            Send on WhatsApp
+            <MessageCircle className="w-4 h-4 fill-white/20" />
+            <span>Send on WhatsApp</span>
           </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCopyWhatsApp}
-            className="flex-1 sm:flex-none h-10 sm:h-9 gap-1.5 border-slate-300"
-          >
-            <Copy className="w-4 h-4" />
-            Copy Text
-          </Button>
+          {/* Secondary Actions: 2-column grid on mobile, inline row on desktop */}
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center order-2 sm:order-1">
+            <Button
+              type="button"
+              onClick={handlePrint}
+              className="w-full sm:w-auto h-10 sm:h-9 px-3.5 bg-[#1e3a8a] hover:bg-[#1e40af] active:bg-blue-900 text-white font-medium rounded-xl shadow-sm text-xs sm:text-sm flex items-center justify-center gap-1.5 active:scale-[0.99] transition-all"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Print Statement</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCopyWhatsApp}
+              className="w-full sm:w-auto h-10 sm:h-9 px-3.5 border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-xl text-xs sm:text-sm flex items-center justify-center gap-1.5 active:scale-[0.99] transition-all"
+            >
+              <Copy className="w-4 h-4 text-slate-500" />
+              <span>Copy Text</span>
+            </Button>
+          </div>
         </div>
       </div>
 
