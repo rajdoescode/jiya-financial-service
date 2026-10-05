@@ -29,10 +29,25 @@
     body { background-color: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 60px; }
 
     /* Top Navigation */
-    header { background: var(--primary); color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
+    header { background: var(--primary); color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); flex-wrap: wrap; gap: 0.75rem; }
     header h1 { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
     header .subtitle { font-size: 0.8rem; opacity: 0.85; }
-    .header-actions { display: flex; gap: 0.5rem; align-items: center; }
+    .header-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+    /* User Pill in Header */
+    .user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .badge-role-admin { background: #fef08a; color: #854d0e; font-weight: 700; }
+    .badge-role-employee { background: #dcfce7; color: #166534; font-weight: 700; }
 
     /* Tabs */
     .tabs { display: flex; background: white; border-bottom: 1px solid var(--border); padding: 0 1.5rem; overflow-x: auto; gap: 0.5rem; }
@@ -102,10 +117,122 @@
     .statement-summary-box { background: #f1f5f9; border-radius: 6px; padding: 1rem; margin: 1.5rem 0; display: flex; justify-content: space-around; text-align: center; }
     .statement-summary-box .item-val { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
 
+    /* Login Screen Layout */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f766e 100%);
+      padding: 1.5rem;
+    }
+    .login-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+      width: 100%;
+      max-width: 440px;
+      padding: 2.25rem;
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .login-header h2 {
+      font-size: 1.5rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .login-header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+    .login-hint-box {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      color: #475569;
+      line-height: 1.4;
+    }
+    .login-hint-box strong { color: var(--primary); }
+
+    /* Modal Dialog */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 1rem;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.25);
+      width: 100%;
+      max-width: 460px;
+      padding: 1.75rem;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+    .modal-header h3 {
+      font-size: 1.15rem;
+      color: var(--text);
+    }
+    .modal-close-btn {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+    .modal-close-btn:hover { color: var(--danger); }
+
+    /* Password Input with Toggle Icon */
+    .password-input-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-input-group input {
+      width: 100%;
+      padding-right: 2.75rem;
+    }
+    .password-toggle-btn {
+      position: absolute;
+      right: 0.4rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--text-muted);
+      padding: 0.3rem 0.5rem;
+    }
+
     /* Print styles */
     @media print {
       body { background: white; padding: 0; }
-      header, .tabs, .filter-bar, .no-print, .btn { display: none !important; }
+      header, .tabs, .filter-bar, .no-print, .btn, #loginScreen, .modal-overlay { display: none !important; }
       .container { max-width: 100%; margin: 0; padding: 0; }
       .statement-card { border: none; box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
       .statement-header h2 { color: black; }
@@ -117,456 +244,627 @@
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <div>
-      <h1>💼 Jiya Financial Services</h1>
-      <div class="subtitle">Mutual Fund Sales & Agent Commission Tracking Portal</div>
-    </div>
-    <div class="header-actions no-print">
-      <button class="btn btn-secondary btn-sm" onclick="exportDataJson()">💾 Backup Data</button>
-      <button class="btn btn-secondary btn-sm" onclick="triggerImportJson()">📂 Restore</button>
-      <input type="file" id="importFileInput" style="display:none" onchange="importDataJson(event)" accept=".json">
-    </div>
-  </header>
+  <!-- LOGIN SCREEN (Shown when user is not logged in) -->
+  <div id="loginScreen" class="login-wrapper" style="display: none;">
+    <div class="login-card">
+      <div class="login-header">
+        <h2>💼 Jiya Financial Services</h2>
+        <p>Employee & Admin Portal Sign In</p>
+      </div>
 
-  <!-- Navigation Tabs -->
-  <div class="tabs no-print">
-    <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Sales & Commission Dashboard</button>
-    <button class="tab-btn" onclick="switchTab('add-investment')">➕ New Investment Entry</button>
-    <button class="tab-btn" onclick="switchTab('statement')">📄 Month-End Agent Slip</button>
-    <button class="tab-btn" onclick="switchTab('agents')">🤝 Agents & Commission Rates</button>
-    <button class="tab-btn" onclick="switchTab('clients')">👥 Clients</button>
+      <form onsubmit="handleLoginSubmit(event)">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="loginUsername">User ID / Username *</label>
+          <input type="text" id="loginUsername" required placeholder="Enter User ID (e.g. admin or emp1)" autofocus autocomplete="username">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label for="loginPassword">Password *</label>
+          <div class="password-input-group">
+            <input type="password" id="loginPassword" required placeholder="Enter password" autocomplete="current-password">
+            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)">👁️</button>
+          </div>
+        </div>
+
+        <div id="loginErrorMsg" style="display: none; color: var(--danger); font-size: 0.85rem; margin-bottom: 1rem; padding: 0.6rem; background: #fee2e2; border-radius: 6px; font-weight: 500;"></div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 1rem;">Sign In</button>
+      </form>
+
+      <div class="login-hint-box">
+        <div style="font-weight: 700; margin-bottom: 0.35rem; color: var(--primary);">🔑 Default Access Credentials:</div>
+        <div>• <strong>Admin:</strong> User ID: <code>admin</code> | Password: <code>admin123</code></div>
+        <div>• <strong>Employee:</strong> User ID: <code>emp1</code> | Password: <code>emp123</code></div>
+        <div style="margin-top: 0.35rem; font-size: 0.75rem; color: #64748b;">
+          Admin can create new employee credentials in "Employee Management" and give them to staff, plus change admin password.
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="container">
+  <!-- MAIN APPLICATION CONTAINER (Shown after successful login) -->
+  <div id="appContainer" style="display: none;">
 
-    <!-- 1. DASHBOARD TAB -->
-    <div id="tab-dashboard" class="tab-content active">
-      <!-- Filters -->
-      <div class="filter-bar no-print">
-        <div class="form-group" style="min-width: 140px;">
-          <label>Agent Filter</label>
-          <select id="filterAgent" onchange="renderDashboard()">
-            <option value="ALL">All Agents</option>
-          </select>
-        </div>
-        <div class="form-group" style="min-width: 150px;">
-          <label>Type</label>
-          <select id="filterType" onchange="renderDashboard()">
-            <option value="ALL">All Types</option>
-            <option value="SIP">SIP Only</option>
-            <option value="Lumpsum">Lumpsum Only</option>
-            <option value="Change of Broker">Change of Broker Only</option>
-            <option value="Switch">Switch Only</option>
-          </select>
-        </div>
-        <div class="form-group" style="min-width: 130px;">
-          <label>Year</label>
-          <select id="filterYear" onchange="renderDashboard()">
-            <option value="ALL">All Years</option>
-            <option value="2026" selected>2026</option>
-            <option value="2025">2025</option>
-          </select>
-        </div>
-        <div class="form-group" style="min-width: 140px;">
-          <label>Month</label>
-          <select id="filterMonth" onchange="renderDashboard()">
-            <option value="ALL">All Months</option>
-            <option value="01">January</option>
-            <option value="02">February</option>
-            <option value="03">March</option>
-            <option value="04">April</option>
-            <option value="05">May</option>
-            <option value="06">June</option>
-            <option value="07">July</option>
-            <option value="08">August</option>
-            <option value="09" selected>September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-        </div>
-        <div style="margin-left: auto; display: flex; gap: 0.5rem; align-items: flex-end;">
-          <button class="btn btn-secondary btn-sm" onclick="exportFilteredCSV()">📥 Export CSV</button>
-        </div>
+    <!-- Header -->
+    <header>
+      <div>
+        <h1>💼 Jiya Financial Services</h1>
+        <div class="subtitle">Mutual Fund Sales & Agent Commission Tracking Portal</div>
       </div>
+      <div class="header-actions no-print">
+        <!-- User Pill -->
+        <div class="user-pill" id="userPill">
+          <span id="userBadgeRole" class="badge"></span>
+          <span id="userBadgeName"></span>
+        </div>
+        <!-- Admin-only actions -->
+        <button class="btn btn-secondary btn-sm admin-only" id="headerChangePassBtn" onclick="openAdminPasswordModal()" title="Change Admin Password">🔑 Change Password</button>
+        <button class="btn btn-secondary btn-sm admin-only" onclick="exportDataJson()">💾 Backup Data</button>
+        <button class="btn btn-secondary btn-sm admin-only" onclick="triggerImportJson()">📂 Restore</button>
+        <input type="file" id="importFileInput" style="display:none" onchange="importDataJson(event)" accept=".json">
+        <!-- Logout -->
+        <button class="btn btn-danger btn-sm" onclick="logoutUser()">🚪 Logout</button>
+      </div>
+    </header>
 
-      <!-- KPI Summary Cards -->
-      <div class="stats-grid">
-        <div class="stat-card highlight">
-          <div class="label">Total Investment Sales</div>
-          <div class="value" id="kpiTotalSales">₹0</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">Mutual Fund SIP Volume</div>
-          <div class="value" id="kpiTotalSip">₹0</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">Lumpsum Investment Volume</div>
-          <div class="value" id="kpiTotalLumpsum">₹0</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">Change of Broker Volume</div>
-          <div class="value" id="kpiTotalCob">₹0</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">Switch Volume</div>
-          <div class="value" id="kpiTotalSwitch">₹0</div>
-        </div>
-        <div class="stat-card commission">
-          <div class="label">Total Commission Payable</div>
-          <div class="value" id="kpiTotalCommission">₹0</div>
-        </div>
-      </div>
-
-      <!-- Transactions List -->
-      <div class="card">
-        <div class="card-title">
-          <span>Investment Transactions</span>
-          <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);" id="txCountBadge">0 records</span>
-        </div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Client Name</th>
-                <th>Mapped Agent</th>
-                <th>Type</th>
-                <th>Scheme / Remarks</th>
-                <th>Investment Amount</th>
-                <th>Commission %</th>
-                <th>Commission (₹)</th>
-                <th class="no-print">Action</th>
-              </tr>
-            </thead>
-            <tbody id="transactionsTableBody">
-              <!-- Rendered dynamically -->
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <!-- Navigation Tabs -->
+    <div class="tabs no-print">
+      <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Sales & Commission Dashboard</button>
+      <button class="tab-btn" onclick="switchTab('add-investment')">➕ New Investment Entry</button>
+      <button class="tab-btn" onclick="switchTab('statement')">📄 Month-End Agent Slip</button>
+      <button class="tab-btn" onclick="switchTab('agents')">🤝 Agents & Commission Rates</button>
+      <button class="tab-btn" onclick="switchTab('clients')">👥 Clients</button>
+      <button class="tab-btn admin-only" id="tabBtnEmployees" onclick="switchTab('employees')">🛡️ Manage Employees</button>
     </div>
 
-    <!-- 2. ADD INVESTMENT TAB -->
-    <div id="tab-add-investment" class="tab-content">
-      <div class="card" style="max-width: 750px; margin: 0 auto;">
-        <div class="card-title">➕ Record New Mutual Fund Investment</div>
-        <form id="investmentForm" onsubmit="saveInvestment(event)">
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="invClient">Select Client *</label>
-              <select id="invClient" required onchange="onClientSelected(this.value)">
-                <option value="">-- Choose Client --</option>
-              </select>
-              <small>Client automatically maps their assigned agent</small>
-            </div>
+    <div class="container">
 
-            <div class="form-group">
-              <label for="invAgent">Mapped Agent *</label>
-              <select id="invAgent" required onchange="onAgentSelected(this.value)">
-                <option value="">-- Choose Agent --</option>
-              </select>
-              <small>Receives the commission on this transaction</small>
-            </div>
-
-            <div class="form-group">
-              <label for="invType">Investment Type *</label>
-              <select id="invType" required onchange="onInvestmentTypeChange()">
-                <option value="SIP">Mutual Fund SIP</option>
-                <option value="Lumpsum">Lumpsum Investment</option>
-                <option value="Change of Broker">Change of Broker</option>
-                <option value="Switch">Switch</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="invAmount">Investment Amount (₹) *</label>
-              <input type="number" id="invAmount" min="100" step="1" required placeholder="e.g. 50000" oninput="calculateLiveCommission()">
-            </div>
-
-            <div class="form-group">
-              <label for="invRate">Agent Commission Rate (%) *</label>
-              <input type="number" id="invRate" step="0.01" min="0" max="100" required placeholder="e.g. 1.5" oninput="calculateLiveCommission()">
-              <small>Auto-filled from Agent's rate for this type (can adjust if needed)</small>
-            </div>
-
-            <div class="form-group">
-              <label for="invDate">Investment Date *</label>
-              <input type="date" id="invDate" required>
-            </div>
-
-            <div class="form-group" style="grid-column: 1 / -1;">
-              <label for="invScheme">Mutual Fund Scheme / Note (Optional)</label>
-              <input type="text" id="invScheme" placeholder="e.g. SBI Bluechip Fund / HDFC Midcap Opp">
-            </div>
+      <!-- 1. DASHBOARD TAB -->
+      <div id="tab-dashboard" class="tab-content active">
+        <!-- Filters -->
+        <div class="filter-bar no-print">
+          <div class="form-group" style="min-width: 140px;">
+            <label>Agent Filter</label>
+            <select id="filterAgent" onchange="renderDashboard()">
+              <option value="ALL">All Agents</option>
+            </select>
           </div>
-
-          <!-- Live Commission Preview Box -->
-          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 1rem; margin: 1.25rem 0; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <div style="font-size: 0.85rem; color: #166534; font-weight: 600;">Calculated Commission to Agent:</div>
-              <div style="font-size: 0.8rem; color: #15803d;" id="commFormulaText">Amount × Rate% = Commission</div>
-            </div>
-            <div style="font-size: 1.6rem; font-weight: 700; color: #15803d;" id="commPreviewAmount">₹0.00</div>
+          <div class="form-group" style="min-width: 150px;">
+            <label>Type</label>
+            <select id="filterType" onchange="renderDashboard()">
+              <option value="ALL">All Types</option>
+              <option value="SIP">SIP Only</option>
+              <option value="Lumpsum">Lumpsum Only</option>
+              <option value="Change of Broker">Change of Broker Only</option>
+              <option value="Switch">Switch Only</option>
+            </select>
           </div>
-
-          <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
-            <button type="button" class="btn btn-secondary" onclick="resetInvestmentForm()">Reset</button>
-            <button type="submit" class="btn btn-primary">Save Investment</button>
+          <div class="form-group" style="min-width: 130px;">
+            <label>Year</label>
+            <select id="filterYear" onchange="renderDashboard()">
+              <option value="ALL">All Years</option>
+              <option value="2026" selected>2026</option>
+              <option value="2025">2025</option>
+            </select>
           </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- 3. MONTH-END AGENT SLIP TAB -->
-    <div id="tab-statement" class="tab-content">
-      <div class="filter-bar no-print" style="max-width: 850px; margin: 0 auto 1.5rem auto;">
-        <div class="form-group" style="flex: 1;">
-          <label>Select Agent</label>
-          <select id="stmtAgent" onchange="renderAgentStatement()">
-            <!-- Agents populated -->
-          </select>
-        </div>
-        <div class="form-group" style="min-width: 120px;">
-          <label>Year</label>
-          <select id="stmtYear" onchange="renderAgentStatement()">
-            <option value="2026" selected>2026</option>
-            <option value="2025">2025</option>
-          </select>
-        </div>
-        <div class="form-group" style="min-width: 140px;">
-          <label>Month</label>
-          <select id="stmtMonth" onchange="renderAgentStatement()">
-            <option value="01">January</option>
-            <option value="02">February</option>
-            <option value="03">March</option>
-            <option value="04">April</option>
-            <option value="05">May</option>
-            <option value="06">June</option>
-            <option value="07">July</option>
-            <option value="08">August</option>
-            <option value="09" selected>September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-        </div>
-        <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
-          <button class="btn btn-primary" onclick="window.print()">🖨️ Print Statement</button>
-          <button class="btn btn-success" onclick="copyWhatsAppSummary()">💬 Copy WhatsApp Text</button>
-        </div>
-      </div>
-
-      <!-- Printable Statement Body -->
-      <div class="statement-card" id="statementPrintArea">
-        <div class="statement-header">
-          <h2>JIYA FINANCIAL SERVICES</h2>
-          <div style="font-size: 0.95rem; color: #475569; font-weight: 500; margin-top: 0.2rem;">
-            Agent Mutual Fund Sales & Commission Settlement Statement
+          <div class="form-group" style="min-width: 140px;">
+            <label>Month</label>
+            <select id="filterMonth" onchange="renderDashboard()">
+              <option value="ALL">All Months</option>
+              <option value="01">January</option>
+              <option value="02">February</option>
+              <option value="03">March</option>
+              <option value="04">April</option>
+              <option value="05">May</option>
+              <option value="06">June</option>
+              <option value="07">July</option>
+              <option value="08">August</option>
+              <option value="09" selected>September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+          <div style="margin-left: auto; display: flex; gap: 0.5rem; align-items: flex-end;">
+            <button class="btn btn-secondary btn-sm" onclick="exportFilteredCSV()">📥 Export CSV</button>
           </div>
         </div>
 
-        <div class="statement-meta">
-          <div>
-            <strong>Agent Name:</strong> <span id="stmtAgentName">-</span><br>
-            <strong>Mobile:</strong> <span id="stmtAgentPhone">-</span><br>
-            <strong>Commission Rates:</strong> <span id="stmtAgentRate">-</span>
+        <!-- KPI Summary Cards -->
+        <div class="stats-grid">
+          <div class="stat-card highlight">
+            <div class="label">Total Investment Sales</div>
+            <div class="value" id="kpiTotalSales">₹0</div>
           </div>
-          <div style="text-align: right;">
-            <strong>Settlement Period:</strong> <span id="stmtPeriodText">-</span><br>
-            <strong>Statement Date:</strong> <span id="stmtGeneratedDate">-</span><br>
-            <strong>Status:</strong> <span class="badge badge-sip" style="background:#e0f2fe; color:#0369a1;">Verified</span>
+          <div class="stat-card">
+            <div class="label">Mutual Fund SIP Volume</div>
+            <div class="value" id="kpiTotalSip">₹0</div>
           </div>
-        </div>
-
-        <!-- Summary Figures Box -->
-        <div class="statement-summary-box" style="display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: space-around;">
-          <div>
-            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">SIP VOLUME</div>
-            <div class="item-val" id="stmtSipTotal">₹0</div>
+          <div class="stat-card">
+            <div class="label">Lumpsum Investment Volume</div>
+            <div class="value" id="kpiTotalLumpsum">₹0</div>
           </div>
-          <div>
-            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">LUMPSUM VOLUME</div>
-            <div class="item-val" id="stmtLumpTotal">₹0</div>
+          <div class="stat-card">
+            <div class="label">Change of Broker Volume</div>
+            <div class="value" id="kpiTotalCob">₹0</div>
           </div>
-          <div>
-            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">CHANGE OF BROKER</div>
-            <div class="item-val" id="stmtCobTotal">₹0</div>
+          <div class="stat-card">
+            <div class="label">Switch Volume</div>
+            <div class="value" id="kpiTotalSwitch">₹0</div>
           </div>
-          <div>
-            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">SWITCH VOLUME</div>
-            <div class="item-val" id="stmtSwitchTotal">₹0</div>
-          </div>
-          <div>
-            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">TOTAL SALES VOLUME</div>
-            <div class="item-val" id="stmtSalesTotal">₹0</div>
-          </div>
-          <div style="border-left: 2px solid #cbd5e1; padding-left: 1.25rem;">
-            <div style="font-size: 0.75rem; color: #15803d; font-weight: 700;">NET COMMISSION PAYABLE</div>
-            <div class="item-val" style="color: #15803d;" id="stmtCommTotal">₹0</div>
+          <div class="stat-card commission">
+            <div class="label">Total Commission Payable</div>
+            <div class="value" id="kpiTotalCommission">₹0</div>
           </div>
         </div>
 
-        <!-- Breakdown Table -->
-        <h4 style="margin: 1.5rem 0 0.5rem 0; font-size: 0.95rem; color: #334155;">Detailed Transactions Breakdown</h4>
-        <div class="table-container" style="border-radius: 4px;">
-          <table>
-            <thead>
-              <tr style="background:#f1f5f9;">
-                <th>Date</th>
-                <th>Client Name</th>
-                <th>Type</th>
-                <th>Scheme</th>
-                <th style="text-align: right;">Amount</th>
-                <th style="text-align: right;">Rate %</th>
-                <th style="text-align: right;">Commission</th>
-              </tr>
-            </thead>
-            <tbody id="stmtTableBody">
-              <!-- Items -->
-            </tbody>
-          </table>
-        </div>
-
-        <div style="margin-top: 3rem; display: flex; justify-content: space-between; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; font-size: 0.85rem; color: #64748b;">
-          <div>Prepared By: <strong>Jiya Financial Services</strong></div>
-          <div style="border-top: 1px dashed #94a3b8; width: 180px; text-align: center; padding-top: 0.25rem;">Agent Signature / Acknowledgement</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. AGENTS TAB -->
-    <div id="tab-agents" class="tab-content">
-      <div style="display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem;">
-        <!-- Add / Edit Agent Form -->
+        <!-- Transactions List -->
         <div class="card">
-          <div class="card-title" id="agentFormTitle">➕ Add New Agent</div>
-          <form onsubmit="saveAgent(event)">
-            <input type="hidden" id="agentEditId" value="">
-            <div class="form-group" style="margin-bottom: 0.75rem;">
-              <label for="agentName">Agent Full Name *</label>
-              <input type="text" id="agentName" required placeholder="e.g. Rahul Sharma">
-            </div>
-            <div class="form-group" style="margin-bottom: 0.75rem;">
-              <label for="agentPhone">Mobile Number</label>
-              <input type="tel" id="agentPhone" placeholder="e.g. 9876543210">
-            </div>
-
-            <div style="margin-bottom: 1rem;">
-              <label style="font-size: 0.85rem; font-weight: 600; color: var(--text); display: block; margin-bottom: 0.35rem;">
-                Commission Rates by Investment Type (%) *
-              </label>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                <div class="form-group">
-                  <small style="font-weight: 600;">SIP Rate (%)</small>
-                  <input type="number" id="agentRateSip" step="0.01" min="0" max="100" required value="1.5">
-                </div>
-                <div class="form-group">
-                  <small style="font-weight: 600;">Lumpsum Rate (%)</small>
-                  <input type="number" id="agentRateLump" step="0.01" min="0" max="100" required value="1.0">
-                </div>
-                <div class="form-group">
-                  <small style="font-weight: 600;">Change of Broker (%)</small>
-                  <input type="number" id="agentRateCob" step="0.01" min="0" max="100" required value="0.5">
-                </div>
-                <div class="form-group">
-                  <small style="font-weight: 600;">Switch Rate (%)</small>
-                  <input type="number" id="agentRateSwitch" step="0.01" min="0" max="100" required value="0.5">
-                </div>
-              </div>
-              <small style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.35rem;">
-                Rates auto-apply to this agent's transactions by investment type
-              </small>
-            </div>
-
-            <div style="display: flex; gap: 0.5rem;">
-              <button type="submit" id="agentSubmitBtn" class="btn btn-primary" style="flex: 1;">Save Agent</button>
-              <button type="button" id="agentCancelEditBtn" class="btn btn-secondary" style="display: none;" onclick="resetAgentForm()">Cancel</button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Agents List -->
-        <div class="card">
-          <div class="card-title">Registered Agents & Rates</div>
+          <div class="card-title">
+            <span>Investment Transactions</span>
+            <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);" id="txCountBadge">0 records</span>
+          </div>
           <div class="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>Agent Name</th>
-                  <th>Mobile</th>
-                  <th>Commission Rates (%)</th>
-                  <th>Total Sales</th>
-                  <th>Total Commission</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="agentsTableBody">
-                <!-- Rendered dynamically -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. CLIENTS TAB -->
-    <div id="tab-clients" class="tab-content">
-      <div style="display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem;">
-        <!-- Add Client Form -->
-        <div class="card">
-          <div class="card-title">➕ Add Client & Map to Agent</div>
-          <form onsubmit="saveClient(event)">
-            <div class="form-group" style="margin-bottom: 0.85rem;">
-              <label for="clientName">Client Full Name *</label>
-              <input type="text" id="clientName" required placeholder="e.g. Anjali Verma">
-            </div>
-            <div class="form-group" style="margin-bottom: 0.85rem;">
-              <label for="clientPhone">Mobile Number</label>
-              <input type="tel" id="clientPhone" placeholder="e.g. 9811223344">
-            </div>
-            <div class="form-group" style="margin-bottom: 1.25rem;">
-              <label for="clientAgent">Map With Agent *</label>
-              <select id="clientAgent" required>
-                <option value="">-- Choose Agent --</option>
-              </select>
-              <small>Investments by this client default to this agent</small>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Save Client</button>
-          </form>
-        </div>
-
-        <!-- Clients List -->
-        <div class="card">
-          <div class="card-title">Registered Clients</div>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
+                  <th>Date</th>
                   <th>Client Name</th>
-                  <th>Mobile</th>
                   <th>Mapped Agent</th>
-                  <th>Agent Comm %</th>
-                  <th>Total Investments</th>
-                  <th>Action</th>
+                  <th>Type</th>
+                  <th>Scheme / Remarks</th>
+                  <th>Investment Amount</th>
+                  <th>Commission %</th>
+                  <th>Commission (₹)</th>
+                  <th class="no-print">Action</th>
                 </tr>
               </thead>
-              <tbody id="clientsTableBody">
+              <tbody id="transactionsTableBody">
                 <!-- Rendered dynamically -->
               </tbody>
             </table>
           </div>
         </div>
       </div>
-    </div>
 
+      <!-- 2. ADD INVESTMENT TAB -->
+      <div id="tab-add-investment" class="tab-content">
+        <div class="card" style="max-width: 750px; margin: 0 auto;">
+          <div class="card-title">➕ Record New Mutual Fund Investment</div>
+          <form id="investmentForm" onsubmit="saveInvestment(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="invClient">Select Client *</label>
+                <select id="invClient" required onchange="onClientSelected(this.value)">
+                  <option value="">-- Choose Client --</option>
+                </select>
+                <small>Client automatically maps their assigned agent</small>
+              </div>
+
+              <div class="form-group">
+                <label for="invAgent">Mapped Agent *</label>
+                <select id="invAgent" required onchange="onAgentSelected(this.value)">
+                  <option value="">-- Choose Agent --</option>
+                </select>
+                <small>Receives the commission on this transaction</small>
+              </div>
+
+              <div class="form-group">
+                <label for="invType">Investment Type *</label>
+                <select id="invType" required onchange="onInvestmentTypeChange()">
+                  <option value="SIP">Mutual Fund SIP</option>
+                  <option value="Lumpsum">Lumpsum Investment</option>
+                  <option value="Change of Broker">Change of Broker</option>
+                  <option value="Switch">Switch</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="invAmount">Investment Amount (₹) *</label>
+                <input type="number" id="invAmount" min="100" step="1" required placeholder="e.g. 50000" oninput="calculateLiveCommission()">
+              </div>
+
+              <div class="form-group">
+                <label for="invRate">Agent Commission Rate (%) *</label>
+                <input type="number" id="invRate" step="0.01" min="0" max="100" required placeholder="e.g. 1.5" oninput="calculateLiveCommission()">
+                <small>Auto-filled from Agent's rate for this type (can adjust if needed)</small>
+              </div>
+
+              <div class="form-group">
+                <label for="invDate">Investment Date *</label>
+                <input type="date" id="invDate" required>
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label for="invScheme">Mutual Fund Scheme / Note (Optional)</label>
+                <input type="text" id="invScheme" placeholder="e.g. SBI Bluechip Fund / HDFC Midcap Opp">
+              </div>
+            </div>
+
+            <!-- Live Commission Preview Box -->
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 1rem; margin: 1.25rem 0; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 0.85rem; color: #166534; font-weight: 600;">Calculated Commission to Agent:</div>
+                <div style="font-size: 0.8rem; color: #15803d;" id="commFormulaText">Amount × Rate% = Commission</div>
+              </div>
+              <div style="font-size: 1.6rem; font-weight: 700; color: #15803d;" id="commPreviewAmount">₹0.00</div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+              <button type="button" class="btn btn-secondary" onclick="resetInvestmentForm()">Reset</button>
+              <button type="submit" class="btn btn-primary">Save Investment</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 3. MONTH-END AGENT SLIP TAB -->
+      <div id="tab-statement" class="tab-content">
+        <div class="filter-bar no-print" style="max-width: 850px; margin: 0 auto 1.5rem auto;">
+          <div class="form-group" style="flex: 1;">
+            <label>Select Agent</label>
+            <select id="stmtAgent" onchange="renderAgentStatement()">
+              <!-- Agents populated -->
+            </select>
+          </div>
+          <div class="form-group" style="min-width: 120px;">
+            <label>Year</label>
+            <select id="stmtYear" onchange="renderAgentStatement()">
+              <option value="2026" selected>2026</option>
+              <option value="2025">2025</option>
+            </select>
+          </div>
+          <div class="form-group" style="min-width: 140px;">
+            <label>Month</label>
+            <select id="stmtMonth" onchange="renderAgentStatement()">
+              <option value="01">January</option>
+              <option value="02">February</option>
+              <option value="03">March</option>
+              <option value="04">April</option>
+              <option value="05">May</option>
+              <option value="06">June</option>
+              <option value="07">July</option>
+              <option value="08">August</option>
+              <option value="09" selected>September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Print Statement</button>
+            <button class="btn btn-success" onclick="copyWhatsAppSummary()">💬 Copy WhatsApp Text</button>
+          </div>
+        </div>
+
+        <!-- Printable Statement Body -->
+        <div class="statement-card" id="statementPrintArea">
+          <div class="statement-header">
+            <h2>JIYA FINANCIAL SERVICES</h2>
+            <div style="font-size: 0.95rem; color: #475569; font-weight: 500; margin-top: 0.2rem;">
+              Agent Mutual Fund Sales & Commission Settlement Statement
+            </div>
+          </div>
+
+          <div class="statement-meta">
+            <div>
+              <strong>Agent Name:</strong> <span id="stmtAgentName">-</span><br>
+              <strong>Mobile:</strong> <span id="stmtAgentPhone">-</span><br>
+              <strong>Commission Rates:</strong> <span id="stmtAgentRate">-</span>
+            </div>
+            <div style="text-align: right;">
+              <strong>Settlement Period:</strong> <span id="stmtPeriodText">-</span><br>
+              <strong>Statement Date:</strong> <span id="stmtGeneratedDate">-</span><br>
+              <strong>Status:</strong> <span class="badge badge-sip" style="background:#e0f2fe; color:#0369a1;">Verified</span>
+            </div>
+          </div>
+
+          <!-- Summary Figures Box -->
+          <div class="statement-summary-box" style="display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: space-around;">
+            <div>
+              <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">SIP VOLUME</div>
+              <div class="item-val" id="stmtSipTotal">₹0</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">LUMPSUM VOLUME</div>
+              <div class="item-val" id="stmtLumpTotal">₹0</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">CHANGE OF BROKER</div>
+              <div class="item-val" id="stmtCobTotal">₹0</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">SWITCH VOLUME</div>
+              <div class="item-val" id="stmtSwitchTotal">₹0</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">TOTAL SALES VOLUME</div>
+              <div class="item-val" id="stmtSalesTotal">₹0</div>
+            </div>
+            <div style="border-left: 2px solid #cbd5e1; padding-left: 1.25rem;">
+              <div style="font-size: 0.75rem; color: #15803d; font-weight: 700;">NET COMMISSION PAYABLE</div>
+              <div class="item-val" style="color: #15803d;" id="stmtCommTotal">₹0</div>
+            </div>
+          </div>
+
+          <!-- Breakdown Table -->
+          <h4 style="margin: 1.5rem 0 0.5rem 0; font-size: 0.95rem; color: #334155;">Detailed Transactions Breakdown</h4>
+          <div class="table-container" style="border-radius: 4px;">
+            <table>
+              <thead>
+                <tr style="background:#f1f5f9;">
+                  <th>Date</th>
+                  <th>Client Name</th>
+                  <th>Type</th>
+                  <th>Scheme</th>
+                  <th style="text-align: right;">Amount</th>
+                  <th style="text-align: right;">Rate %</th>
+                  <th style="text-align: right;">Commission</th>
+                </tr>
+              </thead>
+              <tbody id="stmtTableBody">
+                <!-- Items -->
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top: 3rem; display: flex; justify-content: space-between; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; font-size: 0.85rem; color: #64748b;">
+            <div>Prepared By: <strong>Jiya Financial Services</strong></div>
+            <div style="border-top: 1px dashed #94a3b8; width: 180px; text-align: center; padding-top: 0.25rem;">Agent Signature / Acknowledgement</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. AGENTS TAB -->
+      <div id="tab-agents" class="tab-content">
+        <div style="display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem;">
+          <!-- Add / Edit Agent Form -->
+          <div class="card">
+            <div class="card-title" id="agentFormTitle">➕ Add New Agent</div>
+            <form onsubmit="saveAgent(event)">
+              <input type="hidden" id="agentEditId" value="">
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label for="agentName">Agent Full Name *</label>
+                <input type="text" id="agentName" required placeholder="e.g. Rahul Sharma">
+              </div>
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label for="agentPhone">Mobile Number</label>
+                <input type="tel" id="agentPhone" placeholder="e.g. 9820011223">
+              </div>
+
+              <div style="margin-bottom: 1rem;">
+                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text); display: block; margin-bottom: 0.35rem;">
+                  Commission Rates by Investment Type (%) *
+                </label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                  <div class="form-group">
+                    <small style="font-weight: 600;">SIP Rate (%)</small>
+                    <input type="number" id="agentRateSip" step="0.01" min="0" max="100" required value="1.5">
+                  </div>
+                  <div class="form-group">
+                    <small style="font-weight: 600;">Lumpsum Rate (%)</small>
+                    <input type="number" id="agentRateLump" step="0.01" min="0" max="100" required value="1.0">
+                  </div>
+                  <div class="form-group">
+                    <small style="font-weight: 600;">Change of Broker (%)</small>
+                    <input type="number" id="agentRateCob" step="0.01" min="0" max="100" required value="0.5">
+                  </div>
+                  <div class="form-group">
+                    <small style="font-weight: 600;">Switch Rate (%)</small>
+                    <input type="number" id="agentRateSwitch" step="0.01" min="0" max="100" required value="0.5">
+                  </div>
+                </div>
+                <small style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.35rem;">
+                  Rates auto-apply to this agent's transactions by investment type
+                </small>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" id="agentSubmitBtn" class="btn btn-primary" style="flex: 1;">Save Agent</button>
+                <button type="button" id="agentCancelEditBtn" class="btn btn-secondary" style="display: none;" onclick="resetAgentForm()">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Agents List -->
+          <div class="card">
+            <div class="card-title">Registered Agents & Rates</div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Agent Name</th>
+                    <th>Mobile</th>
+                    <th>Commission Rates (%)</th>
+                    <th>Total Sales</th>
+                    <th>Total Commission</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="agentsTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. CLIENTS TAB -->
+      <div id="tab-clients" class="tab-content">
+        <div style="display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem;">
+          <!-- Add Client Form -->
+          <div class="card">
+            <div class="card-title">➕ Add Client & Map to Agent</div>
+            <form onsubmit="saveClient(event)">
+              <div class="form-group" style="margin-bottom: 0.85rem;">
+                <label for="clientName">Client Full Name *</label>
+                <input type="text" id="clientName" required placeholder="e.g. Anjali Verma">
+              </div>
+              <div class="form-group" style="margin-bottom: 0.85rem;">
+                <label for="clientPhone">Mobile Number</label>
+                <input type="tel" id="clientPhone" placeholder="e.g. 9811223344">
+              </div>
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label for="clientAgent">Map With Agent *</label>
+                <select id="clientAgent" required>
+                  <option value="">-- Choose Agent --</option>
+                </select>
+                <small>Investments by this client default to this agent</small>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%;">Save Client</button>
+            </form>
+          </div>
+
+          <!-- Clients List -->
+          <div class="card">
+            <div class="card-title">Registered Clients</div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Client Name</th>
+                    <th>Mobile</th>
+                    <th>Mapped Agent</th>
+                    <th>Agent Comm %</th>
+                    <th>Total Investments</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="clientsTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. EMPLOYEE MANAGEMENT & ADMIN SETTINGS TAB (Admin Only) -->
+      <div id="tab-employees" class="tab-content admin-only">
+        <div style="display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem;">
+          <div>
+            <!-- Create Employee Form -->
+            <div class="card">
+              <div class="card-title">➕ Create Employee Account</div>
+              <form id="empCreateForm" onsubmit="handleCreateEmployee(event)">
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                  <label for="empName">Employee Full Name *</label>
+                  <input type="text" id="empName" required placeholder="e.g. Rahul Sharma">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                  <label for="empUsername">User ID / Username *</label>
+                  <input type="text" id="empUsername" required placeholder="e.g. rahul101" pattern="[a-zA-Z0-9_\-]+" title="Letters, numbers, underscores, or hyphens only">
+                  <small>Employee will sign in using this User ID</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                  <label for="empPassword">Password *</label>
+                  <div class="password-input-group">
+                    <input type="text" id="empPassword" required minlength="4" placeholder="e.g. Rahul@2026">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="generateRandomPassword('empPassword')" style="position: absolute; right: 4px; padding: 0.3rem 0.55rem; font-size: 0.75rem;" title="Generate random password">🎲 Auto</button>
+                  </div>
+                  <small>Set initial password to give to employee</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Employee Login</button>
+              </form>
+            </div>
+
+            <!-- Admin Password Security Card -->
+            <div class="card">
+              <div class="card-title">🔑 Admin Password Settings</div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Logged in as Administrator (<code>admin</code>). Keep your admin credentials secure.
+              </p>
+              <button class="btn btn-secondary" onclick="openAdminPasswordModal()" style="width: 100%;">🔑 Change Admin Password</button>
+            </div>
+          </div>
+
+          <!-- Employees List -->
+          <div class="card">
+            <div class="card-title">
+              <span>Registered Employee Accounts</span>
+              <span id="empCountBadge" style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">0 employees</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Employee Name</th>
+                    <th>User ID</th>
+                    <th>Password</th>
+                    <th>Created Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="employeesTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ADMIN CHANGE PASSWORD MODAL -->
+  <div id="adminPasswordModal" class="modal-overlay" style="display: none;" onclick="onModalBackdropClick(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🔑 Change Admin Password</h3>
+        <button class="modal-close-btn" onclick="closeAdminPasswordModal()">&times;</button>
+      </div>
+      <form onsubmit="handleAdminPasswordChange(event)">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="currentAdminPass">Current Admin Password *</label>
+          <div class="password-input-group">
+            <input type="password" id="currentAdminPass" required placeholder="Enter current password">
+            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('currentAdminPass', this)">👁️</button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="newAdminPass">New Password *</label>
+          <div class="password-input-group">
+            <input type="password" id="newAdminPass" required minlength="4" placeholder="Minimum 4 characters">
+            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('newAdminPass', this)">👁️</button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label for="confirmAdminPass">Confirm New Password *</label>
+          <div class="password-input-group">
+            <input type="password" id="confirmAdminPass" required minlength="4" placeholder="Re-enter new password">
+            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('confirmAdminPass', this)">👁️</button>
+          </div>
+        </div>
+
+        <div id="adminPassErrorMsg" style="display: none; color: var(--danger); font-size: 0.85rem; margin-bottom: 1rem; padding: 0.55rem; background: #fee2e2; border-radius: 6px;"></div>
+
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeAdminPasswordModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Password</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script>
-    // Initial Seed Data for immediate testing
+    // Initial Seed Data with Admin and Employee credentials
     const DEFAULT_DATA = {
+      admin: {
+        username: "admin",
+        password: "admin123",
+        name: "Administrator"
+      },
+      employees: [
+        { id: "E1", username: "emp1", password: "emp123", name: "Pooja Sharma", status: "Active", createdAt: "2026-09-01" }
+      ],
       agents: [
         { id: "A1", name: "Ramesh Sharma", phone: "9820011223", rates: { "SIP": 1.5, "Lumpsum": 1.0, "Change of Broker": 0.5, "Switch": 0.5 } },
         { id: "A2", name: "Pooja Mehta", phone: "9890044556", rates: { "SIP": 2.0, "Lumpsum": 1.5, "Change of Broker": 0.75, "Switch": 0.75 } },
@@ -608,9 +906,22 @@
       return `<span class="badge">${type}</span>`;
     }
 
-    // Ensure agents have per-type rates object
+    // Ensure store schema backwards compatibility
     function normalizeStore(s) {
-      if (s && Array.isArray(s.agents)) {
+      if (!s) return;
+      if (!s.admin) {
+        s.admin = {
+          username: "admin",
+          password: "admin123",
+          name: "Administrator"
+        };
+      }
+      if (!Array.isArray(s.employees)) {
+        s.employees = [
+          { id: "E1", username: "emp1", password: "emp123", name: "Pooja Sharma", status: "Active", createdAt: "2026-09-01" }
+        ];
+      }
+      if (Array.isArray(s.agents)) {
         s.agents.forEach(a => {
           if (!a.rates) {
             const fallback = a.rate !== undefined ? a.rate : 1.5;
@@ -655,7 +966,342 @@
       localStorage.setItem("jiya_financial_store_v2", JSON.stringify(store));
     }
 
-    // Currency Formatter
+    // ==========================================
+    // AUTHENTICATION & SESSION MANAGEMENT
+    // ==========================================
+    function getCurrentUser() {
+      try {
+        const u = sessionStorage.getItem("jiya_current_user");
+        return u ? JSON.parse(u) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function setCurrentUser(user) {
+      if (user) {
+        sessionStorage.setItem("jiya_current_user", JSON.stringify(user));
+      } else {
+        sessionStorage.removeItem("jiya_current_user");
+      }
+    }
+
+    function authenticate(s, username, password) {
+      if (!username || !password) {
+        return { success: false, error: "Please enter both User ID and Password." };
+      }
+      const cleanUser = String(username).trim().toLowerCase();
+
+      // Check Admin
+      if (s.admin && s.admin.username.toLowerCase() === cleanUser) {
+        if (s.admin.password === password) {
+          return {
+            success: true,
+            user: { role: "admin", username: s.admin.username, name: s.admin.name || "Administrator" }
+          };
+        } else {
+          return { success: false, error: "Invalid password for Administrator." };
+        }
+      }
+
+      // Check Employee accounts
+      if (Array.isArray(s.employees)) {
+        const emp = s.employees.find(e => e.username.toLowerCase() === cleanUser);
+        if (emp) {
+          if (emp.status === "Inactive") {
+            return { success: false, error: "This employee account is deactivated." };
+          }
+          if (emp.password === password) {
+            return {
+              success: true,
+              user: { role: "employee", username: emp.username, name: emp.name, id: emp.id }
+            };
+          } else {
+            return { success: false, error: "Invalid password for Employee." };
+          }
+        }
+      }
+
+      return { success: false, error: "User ID not found. Check spelling or contact Administrator." };
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const errorDiv = document.getElementById("loginErrorMsg");
+      errorDiv.style.display = "none";
+
+      const res = authenticate(store, username, password);
+      if (!res.success) {
+        errorDiv.textContent = res.error;
+        errorDiv.style.display = "block";
+        return;
+      }
+
+      setCurrentUser(res.user);
+      showAppForUser(res.user);
+    }
+
+    function showAppForUser(user) {
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("appContainer").style.display = "block";
+
+      const roleBadge = document.getElementById("userBadgeRole");
+      const nameSpan = document.getElementById("userBadgeName");
+
+      if (user.role === "admin") {
+        roleBadge.textContent = "Admin";
+        roleBadge.className = "badge badge-role-admin";
+        nameSpan.textContent = user.name || "Administrator";
+        document.querySelectorAll(".admin-only").forEach(el => el.style.display = "");
+      } else {
+        roleBadge.textContent = "Employee";
+        roleBadge.className = "badge badge-role-employee";
+        nameSpan.textContent = user.name || user.username;
+        document.querySelectorAll(".admin-only").forEach(el => el.style.display = "none");
+      }
+
+      populateDropdowns();
+      renderDashboard();
+      calculateLiveCommission();
+      switchTab("dashboard");
+    }
+
+    function logoutUser() {
+      if (!confirm("Are you sure you want to sign out?")) return;
+      setCurrentUser(null);
+      document.getElementById("appContainer").style.display = "none";
+      document.getElementById("loginScreen").style.display = "flex";
+      document.getElementById("loginUsername").value = "";
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("loginErrorMsg").style.display = "none";
+      document.getElementById("loginUsername").focus();
+    }
+
+    // ==========================================
+    // ADMIN CHANGE PASSWORD
+    // ==========================================
+    function openAdminPasswordModal() {
+      document.getElementById("currentAdminPass").value = "";
+      document.getElementById("newAdminPass").value = "";
+      document.getElementById("confirmAdminPass").value = "";
+      document.getElementById("adminPassErrorMsg").style.display = "none";
+      document.getElementById("adminPasswordModal").style.display = "flex";
+      document.getElementById("currentAdminPass").focus();
+    }
+
+    function closeAdminPasswordModal() {
+      document.getElementById("adminPasswordModal").style.display = "none";
+    }
+
+    function onModalBackdropClick(e) {
+      if (e.target.id === "adminPasswordModal") {
+        closeAdminPasswordModal();
+      }
+    }
+
+    function changeAdminPassword(s, currentPassword, newPassword) {
+      if (!s.admin) return { success: false, error: "Admin account not found." };
+      if (s.admin.password !== currentPassword) {
+        return { success: false, error: "Current admin password is incorrect." };
+      }
+      if (!newPassword || newPassword.length < 4) {
+        return { success: false, error: "New password must be at least 4 characters long." };
+      }
+      s.admin.password = newPassword;
+      return { success: true };
+    }
+
+    function handleAdminPasswordChange(e) {
+      e.preventDefault();
+      const currentPass = document.getElementById("currentAdminPass").value;
+      const newPass = document.getElementById("newAdminPass").value;
+      const confirmPass = document.getElementById("confirmAdminPass").value;
+      const errorDiv = document.getElementById("adminPassErrorMsg");
+      errorDiv.style.display = "none";
+
+      if (newPass !== confirmPass) {
+        errorDiv.textContent = "New password and Confirm password do not match.";
+        errorDiv.style.display = "block";
+        return;
+      }
+
+      const res = changeAdminPassword(store, currentPass, newPass);
+      if (!res.success) {
+        errorDiv.textContent = res.error;
+        errorDiv.style.display = "block";
+        return;
+      }
+
+      persistStore();
+      closeAdminPasswordModal();
+      alert("✅ Admin password updated successfully! Please use your new password next time you log in.");
+    }
+
+    // ==========================================
+    // EMPLOYEE MANAGEMENT
+    // ==========================================
+    function createEmployee(s, { name, username, password }) {
+      if (!name || !name.trim()) return { success: false, error: "Employee name is required." };
+      if (!username || !username.trim()) return { success: false, error: "Employee User ID is required." };
+      if (!password || password.length < 4) return { success: false, error: "Password must be at least 4 characters long." };
+
+      const cleanUser = username.trim().toLowerCase();
+
+      // Check collision with admin
+      if (s.admin && s.admin.username.toLowerCase() === cleanUser) {
+        return { success: false, error: "User ID already reserved for Administrator." };
+      }
+
+      // Check collision with other employees
+      if (s.employees.some(e => e.username.toLowerCase() === cleanUser)) {
+        return { success: false, error: `User ID "${cleanUser}" already exists for another employee.` };
+      }
+
+      const newEmp = {
+        id: "EMP" + Date.now(),
+        name: name.trim(),
+        username: cleanUser,
+        password: password,
+        status: "Active",
+        createdAt: new Date().toISOString().split("T")[0]
+      };
+
+      s.employees.push(newEmp);
+      return { success: true, employee: newEmp };
+    }
+
+    function handleCreateEmployee(e) {
+      e.preventDefault();
+      const name = document.getElementById("empName").value.trim();
+      const username = document.getElementById("empUsername").value.trim();
+      const password = document.getElementById("empPassword").value.trim();
+
+      const res = createEmployee(store, { name, username, password });
+      if (!res.success) {
+        alert("⚠️ " + res.error);
+        return;
+      }
+
+      persistStore();
+      renderEmployeesList();
+      document.getElementById("empCreateForm").reset();
+
+      if (confirm(`✅ Employee account created successfully!\n\nName: ${name}\nUser ID: ${username}\nPassword: ${password}\n\nWould you like to copy credentials to clipboard now to give to the employee?`)) {
+        copyEmployeeCredentials(res.employee.id);
+      }
+    }
+
+    function renderEmployeesList() {
+      const tbody = document.getElementById("employeesTableBody");
+      if (!tbody) return;
+
+      const countBadge = document.getElementById("empCountBadge");
+      if (countBadge) countBadge.textContent = `${store.employees.length} active employee(s)`;
+
+      if (!store.employees || store.employees.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No employee accounts created yet. Use the form on the left to add one.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = store.employees.map(e => `
+        <tr>
+          <td><strong>${e.name}</strong></td>
+          <td><code style="background:#f1f5f9; padding:2px 8px; border-radius:4px; font-weight:700; color:var(--primary); font-size:0.9rem;">${e.username}</code></td>
+          <td>
+            <span style="font-family: monospace; background:#f8fafc; border:1px solid #cbd5e1; padding:2px 8px; border-radius:4px; font-weight:600; font-size:0.9rem;">
+              ${e.password}
+            </span>
+          </td>
+          <td>${e.createdAt || "-"}</td>
+          <td><span class="badge" style="background:#dcfce7; color:#15803d;">Active</span></td>
+          <td>
+            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+              <button class="btn btn-success btn-sm" onclick="copyEmployeeCredentials('${e.id}')" title="Copy User ID & Password to share with employee">📋 Copy Details</button>
+              <button class="btn btn-secondary btn-sm" onclick="resetEmployeePasswordPrompt('${e.id}')" title="Change/Reset employee password">✏️ Reset Pass</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteEmployeeAccount('${e.id}')" title="Delete employee account">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function copyEmployeeCredentials(empId) {
+      const emp = store.employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      const portalUrl = window.location.href.split("#")[0];
+      const text = `💼 *JIYA FINANCIAL SERVICES - EMPLOYEE PORTAL LOGIN*\n` +
+        `----------------------------------------\n` +
+        `👤 *Name:* ${emp.name}\n` +
+        `🆔 *User ID:* ${emp.username}\n` +
+        `🔑 *Password:* ${emp.password}\n` +
+        `🌐 *Portal Link:* ${portalUrl}\n` +
+        `----------------------------------------\n` +
+        `Please sign in using the credentials above to record investments and view client details.`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert(`📋 Credentials for "${emp.name}" copied to clipboard!\nYou can now paste them directly into WhatsApp or an Email.`);
+        }).catch(() => {
+          prompt("Copy Employee Credentials below:", text);
+        });
+      } else {
+        prompt("Copy Employee Credentials below:", text);
+      }
+    }
+
+    function resetEmployeePasswordPrompt(empId) {
+      const emp = store.employees.find(e => e.id === empId);
+      if (!emp) return;
+      const newPass = prompt(`Enter new password for employee "${emp.name}" (User ID: ${emp.username}):`, "");
+      if (newPass === null) return;
+      if (!newPass.trim() || newPass.trim().length < 4) {
+        alert("Password must be at least 4 characters.");
+        return;
+      }
+      emp.password = newPass.trim();
+      persistStore();
+      renderEmployeesList();
+      alert(`✅ Password updated for ${emp.name}!\nNew Password: ${emp.password}`);
+    }
+
+    function deleteEmployeeAccount(empId) {
+      const emp = store.employees.find(e => e.id === empId);
+      if (!emp) return;
+      if (!confirm(`Are you sure you want to delete employee "${emp.name}" (${emp.username})?`)) return;
+      store.employees = store.employees.filter(e => e.id !== empId);
+      persistStore();
+      renderEmployeesList();
+    }
+
+    function generateRandomPassword(targetInputId) {
+      const words = ["Jiya", "Wealth", "Grow", "Fund", "Invest", "Secure", "Capital"];
+      const randWord = words[Math.floor(Math.random() * words.length)];
+      const randNum = Math.floor(1000 + Math.random() * 9000);
+      const pass = `${randWord}@${randNum}`;
+      const input = document.getElementById(targetInputId);
+      if (input) {
+        input.value = pass;
+      }
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === "password") {
+        input.type = "text";
+        btn.textContent = "🙈";
+      } else {
+        input.type = "password";
+        btn.textContent = "👁️";
+      }
+    }
+
+    // ==========================================
+    // UTILS & FORMATTERS
+    // ==========================================
     function formatINR(amount) {
       return "₹" + Number(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
@@ -679,50 +1325,61 @@
       if (tabId === "agents") renderAgentsList();
       if (tabId === "clients") renderClientsList();
       if (tabId === "add-investment") populateInvestmentDropdowns();
+      if (tabId === "employees") renderEmployeesList();
     }
 
     // Populate Dropdowns
     function populateDropdowns() {
       // Filter agent dropdown
       const filterAgent = document.getElementById("filterAgent");
-      const currentFilter = filterAgent.value;
-      filterAgent.innerHTML = `<option value="ALL">All Agents</option>` + store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
-      if (currentFilter) filterAgent.value = currentFilter;
+      if (filterAgent) {
+        const currentFilter = filterAgent.value;
+        filterAgent.innerHTML = `<option value="ALL">All Agents</option>` + store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
+        if (currentFilter) filterAgent.value = currentFilter;
+      }
 
       // Statement agent dropdown
       const stmtAgent = document.getElementById("stmtAgent");
-      stmtAgent.innerHTML = store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
+      if (stmtAgent) {
+        stmtAgent.innerHTML = store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
+      }
 
       // Client mapping agent dropdown
       const clientAgent = document.getElementById("clientAgent");
-      clientAgent.innerHTML = `<option value="">-- Choose Agent --</option>` + store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
+      if (clientAgent) {
+        clientAgent.innerHTML = `<option value="">-- Choose Agent --</option>` + store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
+      }
 
       populateInvestmentDropdowns();
     }
 
     function populateInvestmentDropdowns() {
       const invClient = document.getElementById("invClient");
-      const currentClient = invClient.value;
-      invClient.innerHTML = `<option value="">-- Choose Client --</option>` + store.clients.map(c => {
-        const ag = store.agents.find(a => a.id === c.agentId);
-        const agName = ag ? ` (Agent: ${ag.name})` : "";
-        return `<option value="${c.id}">${c.name}${agName}</option>`;
-      }).join("");
-      if (currentClient) invClient.value = currentClient;
+      if (invClient) {
+        const currentClient = invClient.value;
+        invClient.innerHTML = `<option value="">-- Choose Client --</option>` + store.clients.map(c => {
+          const ag = store.agents.find(a => a.id === c.agentId);
+          const agName = ag ? ` (Agent: ${ag.name})` : "";
+          return `<option value="${c.id}">${c.name}${agName}</option>`;
+        }).join("");
+        if (currentClient) invClient.value = currentClient;
+      }
 
       const invAgent = document.getElementById("invAgent");
-      const currentAgent = invAgent.value;
-      invAgent.innerHTML = `<option value="">-- Choose Agent --</option>` + store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
-      if (currentAgent) invAgent.value = currentAgent;
+      if (invAgent) {
+        const currentAgent = invAgent.value;
+        invAgent.innerHTML = `<option value="">-- Choose Agent --</option>` + store.agents.map(a => `<option value="${a.id}">${a.name}</option>`).join("");
+        if (currentAgent) invAgent.value = currentAgent;
+
+        if (currentAgent) {
+          onAgentSelected(currentAgent);
+        }
+      }
 
       // Set today's date if empty
       const invDate = document.getElementById("invDate");
-      if (!invDate.value) {
+      if (invDate && !invDate.value) {
         invDate.value = new Date().toISOString().split("T")[0];
-      }
-
-      if (currentAgent) {
-        onAgentSelected(currentAgent);
       }
     }
 
@@ -757,8 +1414,11 @@
     }
 
     function calculateLiveCommission() {
-      const amt = parseFloat(document.getElementById("invAmount").value) || 0;
-      const rate = parseFloat(document.getElementById("invRate").value) || 0;
+      const amtEl = document.getElementById("invAmount");
+      const rateEl = document.getElementById("invRate");
+      if (!amtEl || !rateEl) return;
+      const amt = parseFloat(amtEl.value) || 0;
+      const rate = parseFloat(rateEl.value) || 0;
       const comm = (amt * rate) / 100;
       document.getElementById("commPreviewAmount").textContent = formatINR(comm);
       document.getElementById("commFormulaText").textContent = `${formatINR(amt)} × ${rate}% = ${formatINR(comm)}`;
@@ -1097,7 +1757,6 @@
     function renderAgentsList() {
       const tbody = document.getElementById("agentsTableBody");
       tbody.innerHTML = store.agents.map(a => {
-        // Calculate total sales & commission for this agent
         let totalSales = 0;
         let totalComm = 0;
         store.investments.filter(t => t.agentId === a.id).forEach(t => {
@@ -1307,11 +1966,15 @@
       reader.readAsText(file);
     }
 
-    // Initialize on load
+    // Initialize on load: check authentication
     window.addEventListener("DOMContentLoaded", () => {
-      populateDropdowns();
-      renderDashboard();
-      calculateLiveCommission();
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        showAppForUser(currentUser);
+      } else {
+        document.getElementById("appContainer").style.display = "none";
+        document.getElementById("loginScreen").style.display = "flex";
+      }
     });
   </script>
 </body>
