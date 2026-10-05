@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Download, Trash2, TrendingUp, IndianRupee, Layers, ArrowRightLeft, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,6 +24,7 @@ export function DashboardTab({ agents }: DashboardTabProps) {
   const [filterType, setFilterType] = useState("ALL");
   const [filterYear, setFilterYear] = useState("2026");
   const [filterMonth, setFilterMonth] = useState("09");
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   // Fetch investments with query parameters
   const { data: investments = [], isLoading: isLoadingTxs } = useQuery<IInvestment[]>({
@@ -84,8 +86,7 @@ export function DashboardTab({ agents }: DashboardTabProps) {
   });
 
   const handleDelete = (id: string) => {
-    if (!confirm("Are you sure you want to delete this investment record?")) return;
-    deleteMutation.mutate(id);
+    setDeleteTargetId(id);
   };
 
   const handleExportCSV = () => {
@@ -376,6 +377,23 @@ export function DashboardTab({ agents }: DashboardTabProps) {
           </Table>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={!!deleteTargetId}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title="Delete Investment Record"
+        description="Are you sure you want to delete this transaction record? This action will permanently remove it and re-calculate your sales dashboard."
+        confirmText="Delete Record"
+        variant="destructive"
+        icon="danger"
+        isLoading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (deleteTargetId) {
+            deleteMutation.mutate(deleteTargetId);
+            setDeleteTargetId(null);
+          }
+        }}
+      />
     </div>
   );
 }

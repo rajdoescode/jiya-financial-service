@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Users2, PlusCircle, Edit3, Trash2, FileText, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,6 +28,7 @@ export function AgentsTab({ onViewSlip }: AgentsTabProps) {
   const [lumpRate, setLumpRate] = useState<number | string>(1.0);
   const [cobRate, setCobRate] = useState<number | string>(0.5);
   const [switchRate, setSwitchRate] = useState<number | string>(0.5);
+  const [deleteTargetAgent, setDeleteTargetAgent] = useState<IAgent | null>(null);
 
   const { data: agents = [] } = useQuery<IAgent[]>({
     queryKey: ["agents"],
@@ -124,14 +126,7 @@ export function AgentsTab({ onViewSlip }: AgentsTabProps) {
   };
 
   const handleDelete = (agent: IAgent) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete agent "${agent.name}"? If they have mapped transactions or clients, please be careful.`
-      )
-    ) {
-      return;
-    }
-    deleteMutation.mutate(agent.id);
+    setDeleteTargetAgent(agent);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -397,6 +392,23 @@ export function AgentsTab({ onViewSlip }: AgentsTabProps) {
           </CardContent>
         </Card>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTargetAgent}
+        onOpenChange={(open) => !open && setDeleteTargetAgent(null)}
+        title="Delete Agent"
+        description={`Are you sure you want to delete agent "${deleteTargetAgent?.name}"? If they have mapped transactions or clients, please confirm before removing.`}
+        confirmText="Delete Agent"
+        variant="destructive"
+        icon="danger"
+        isLoading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (deleteTargetAgent) {
+            deleteMutation.mutate(deleteTargetAgent.id);
+            setDeleteTargetAgent(null);
+          }
+        }}
+      />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   ShieldAlert,
   UserPlus,
@@ -49,6 +50,7 @@ export function EmployeesTab({ onOpenAdminPasswordModal }: EmployeesTabProps) {
   // State for Reset Password modal
   const [resetModalEmployee, setResetModalEmployee] = useState<EmployeeItem | null>(null);
   const [resetPasswordVal, setResetPasswordVal] = useState("");
+  const [deleteTargetEmp, setDeleteTargetEmp] = useState<EmployeeItem | null>(null);
 
   const { data: employees = [], isLoading } = useQuery<EmployeeItem[]>({
     queryKey: ["employees"],
@@ -78,13 +80,8 @@ export function EmployeesTab({ onOpenAdminPasswordModal }: EmployeesTabProps) {
       toast.success(`✅ Employee "${newEmp.name}" account created!`);
       queryClient.invalidateQueries({ queryKey: ["employees"] });
 
-      if (
-        confirm(
-          `✅ Employee account created successfully!\n\nName: ${newEmp.name}\nUser ID: ${newEmp.username}\nPassword: ${password}\n\nWould you like to copy credentials to clipboard now to give to the employee?`
-        )
-      ) {
-        copyCredentials(newEmp.name, newEmp.username, password);
-      }
+      // Automatically copy credentials to clipboard for ease of sharing with the employee
+      copyCredentials(newEmp.name, newEmp.username, password);
 
       setName("");
       setUsername("");
@@ -185,8 +182,7 @@ export function EmployeesTab({ onOpenAdminPasswordModal }: EmployeesTabProps) {
   };
 
   const handleDelete = (emp: EmployeeItem) => {
-    if (!confirm(`Are you sure you want to delete employee "${emp.name}" (${emp.username})?`)) return;
-    deleteMutation.mutate(emp.id);
+    setDeleteTargetEmp(emp);
   };
 
   return (
@@ -464,6 +460,24 @@ export function EmployeesTab({ onOpenAdminPasswordModal }: EmployeesTabProps) {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Delete Employee Confirmation Dialog */}
+      <ConfirmDialog
+        open={!!deleteTargetEmp}
+        onOpenChange={(open) => !open && setDeleteTargetEmp(null)}
+        title="Delete Employee Account"
+        description={`Are you sure you want to delete employee "${deleteTargetEmp?.name}" (${deleteTargetEmp?.username})? They will immediately lose access to the portal.`}
+        confirmText="Delete Account"
+        variant="destructive"
+        icon="danger"
+        isLoading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (deleteTargetEmp) {
+            deleteMutation.mutate(deleteTargetEmp.id);
+            setDeleteTargetEmp(null);
+          }
+        }}
+      />
     </>
   );
 }

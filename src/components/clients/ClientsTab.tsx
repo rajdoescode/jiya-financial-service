@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Users, PlusCircle, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,6 +24,7 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [agentId, setAgentId] = useState("");
+  const [deleteTargetClient, setDeleteTargetClient] = useState<IClient | null>(null);
 
   const { data: clients = [] } = useQuery<IClient[]>({
     queryKey: ["clients"],
@@ -104,8 +106,7 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
   };
 
   const handleDelete = (client: IClient) => {
-    if (!confirm(`Are you sure you want to delete client "${client.name}"?`)) return;
-    deleteMutation.mutate(client.id);
+    setDeleteTargetClient(client);
   };
 
   const getClientTotalInvested = (clientId: string) => {
@@ -273,6 +274,23 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
           </CardContent>
         </Card>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTargetClient}
+        onOpenChange={(open) => !open && setDeleteTargetClient(null)}
+        title="Delete Client"
+        description={`Are you sure you want to delete client "${deleteTargetClient?.name}"? Any past investment records for this client will remain in reports.`}
+        confirmText="Delete Client"
+        variant="destructive"
+        icon="danger"
+        isLoading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (deleteTargetClient) {
+            deleteMutation.mutate(deleteTargetClient.id);
+            setDeleteTargetClient(null);
+          }
+        }}
+      />
     </div>
   );
 }

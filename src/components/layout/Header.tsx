@@ -7,6 +7,7 @@ import { AuthUserSession } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AdminPasswordDialog } from "./AdminPasswordDialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
 import {
   KeyRound,
@@ -24,13 +25,12 @@ interface HeaderProps {
 export function Header({ user, onDataRestored }: HeaderProps) {
   const router = useRouter();
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isAdmin = user.role.toLowerCase() === "admin";
 
   const handleLogout = async () => {
-    if (!confirm("Are you sure you want to sign out?")) return;
-
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       toast.success("Signed out successfully");
@@ -184,13 +184,24 @@ export function Header({ user, onDataRestored }: HeaderProps) {
             variant="destructive"
             size="sm"
             className="h-8 text-xs bg-red-600/90 hover:bg-red-700"
-            onClick={handleLogout}
+            onClick={() => setLogoutDialogOpen(true)}
           >
             <LogOut className="w-3.5 h-3.5 mr-1" />
             Logout
           </Button>
         </div>
       </header>
+
+      <ConfirmDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+        title="Sign Out"
+        description="Are you sure you want to sign out of Jiya Financial Services portal?"
+        confirmText="Sign Out"
+        variant="destructive"
+        icon="logout"
+        onConfirm={handleLogout}
+      />
 
       {isAdmin && (
         <AdminPasswordDialog
