@@ -1,7 +1,16 @@
 import mongoose from "mongoose";
+import dns from "node:dns";
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/jiya_financial";
 const MONGODB_DB = process.env.MONGODB_DB || "jiya_financial";
+
+if (MONGODB_URI.startsWith("mongodb+srv://")) {
+  try {
+    dns.setServers(["8.8.8.8", "1.1.1.1"]);
+  } catch {
+    // ignore if custom dns cannot be set in current environment
+  }
+}
 
 interface MongooseCache {
   conn: typeof mongoose | null;
