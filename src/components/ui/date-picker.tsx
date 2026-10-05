@@ -158,7 +158,7 @@ export function DatePicker({
 
       <PopoverContent
         align="start"
-        className="w-[320px] p-4 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 select-none"
+        className="w-[min(calc(100vw-2rem),320px)] p-3 sm:p-4 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 select-none"
       >
         {/* Header Controls: Month & Year Selectors + Nav Arrows */}
         <div className="flex items-center justify-between gap-1 pb-3 border-b border-slate-100">

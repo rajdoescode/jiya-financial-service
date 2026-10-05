@@ -162,22 +162,24 @@ export function AgentsTab({ onViewSlip }: AgentsTabProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
       {/* Form Column */}
       <div className="lg:col-span-4">
         <Card>
-          <CardHeader>
+          <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-2">
               {editId ? (
                 <Edit3 className="w-5 h-5 text-[#1e3a8a]" />
               ) : (
                 <PlusCircle className="w-5 h-5 text-[#1e3a8a]" />
               )}
-              <CardTitle>{editId ? "Edit Agent & Rates" : "Add New Agent"}</CardTitle>
+              <CardTitle className="text-base sm:text-lg">
+                {editId ? "Edit Agent & Rates" : "Add New Agent"}
+              </CardTitle>
             </div>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="agentName">Agent Full Name *</Label>
@@ -258,137 +260,234 @@ export function AgentsTab({ onViewSlip }: AgentsTabProps) {
                 </p>
               </div>
 
-              <div className="flex gap-2 pt-2">
-                <Button type="submit" className="flex-1" disabled={saveMutation.isPending}>
-                  {editId ? "Update Agent" : "Save Agent"}
-                </Button>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
                 {editId && (
-                  <Button type="button" variant="secondary" onClick={resetForm}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={resetForm}
+                    className="w-full sm:w-auto h-11 sm:h-9"
+                  >
                     <RotateCcw className="w-4 h-4 mr-1" />
                     Cancel
                   </Button>
                 )}
+                <Button
+                  type="submit"
+                  className="flex-1 h-11 sm:h-9"
+                  disabled={saveMutation.isPending}
+                >
+                  {editId ? "Update Agent" : "Save Agent"}
+                </Button>
               </div>
             </form>
           </CardContent>
         </Card>
       </div>
 
-      {/* Table Column */}
+      {/* Table / Card Column */}
       <div className="lg:col-span-8">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-row items-center justify-between py-3.5 sm:py-4 px-4 sm:px-6">
             <div className="flex items-center gap-2">
               <Users2 className="w-5 h-5 text-[#1e3a8a]" />
-              <CardTitle>Registered Agents & Rates</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Registered Agents & Rates</CardTitle>
             </div>
             <span className="text-xs text-slate-500 font-medium">
               {agents.length} agent(s)
             </span>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Agent Name</TableHead>
-                  <TableHead>Mobile</TableHead>
-                  <TableHead>Commission Rates (%)</TableHead>
-                  <TableHead>Total Sales</TableHead>
-                  <TableHead>Total Comm</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {agents.length === 0 ? (
+            {/* Mobile Card View (< md) */}
+            <div className="block md:hidden divide-y divide-slate-100">
+              {agents.length === 0 ? (
+                <div className="text-center py-8 text-slate-500 text-sm px-4">
+                  No agents registered yet. Use the form above to add one.
+                </div>
+              ) : (
+                agents.map((ag) => {
+                  const totals = getAgentTotals(ag.id);
+                  return (
+                    <div key={ag.id} className="p-3.5 space-y-2.5 hover:bg-slate-50/60 transition-colors">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="font-semibold text-slate-900 text-sm">{ag.name}</div>
+                          <div className="text-xs font-mono text-slate-500">
+                            {ag.phone || "No phone number"}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs px-2"
+                            onClick={() => handleEdit(ag)}
+                          >
+                            <Edit3 className="w-3.5 h-3.5 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-8 text-xs px-2"
+                            onClick={() => onViewSlip(ag.id)}
+                          >
+                            <FileText className="w-3.5 h-3.5 mr-1" />
+                            Slip
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDelete(ag)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Rates Row */}
+                      <div className="grid grid-cols-4 gap-1.5 bg-slate-50 p-2 rounded-lg border border-slate-100 text-center">
+                        <div>
+                          <div className="text-[10px] font-bold text-blue-700">SIP</div>
+                          <div className="text-xs font-bold font-mono">{ag.rates?.SIP ?? ag.rate ?? 0}%</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-bold text-amber-700">Lump</div>
+                          <div className="text-xs font-bold font-mono">{ag.rates?.Lumpsum ?? ag.rate ?? 0}%</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-bold text-purple-700">COB</div>
+                          <div className="text-xs font-bold font-mono">{ag.rates?.["Change of Broker"] ?? ag.rate ?? 0}%</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-bold text-sky-700">Switch</div>
+                          <div className="text-xs font-bold font-mono">{ag.rates?.Switch ?? ag.rate ?? 0}%</div>
+                        </div>
+                      </div>
+
+                      {/* Totals Summary */}
+                      <div className="flex items-center justify-between text-xs pt-0.5">
+                        <div>
+                          <span className="text-slate-400">Total Sales: </span>
+                          <strong className="text-slate-900 font-mono">{formatINR(totals.sales)}</strong>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Commission: </span>
+                          <strong className="text-emerald-700 font-mono">{formatINR(totals.comm)}</strong>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Desktop Table View (>= md) */}
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-slate-500">
-                      No agents registered yet. Use the form on the left to add one.
-                    </TableCell>
+                    <TableHead>Agent Name</TableHead>
+                    <TableHead>Mobile</TableHead>
+                    <TableHead>Commission Rates (%)</TableHead>
+                    <TableHead>Total Sales</TableHead>
+                    <TableHead>Total Comm</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
                   </TableRow>
-                ) : (
-                  agents.map((ag) => {
-                    const totals = getAgentTotals(ag.id);
-                    return (
-                      <TableRow key={ag.id}>
-                        <TableCell className="font-semibold text-slate-900">
-                          {ag.name}
-                        </TableCell>
-                        <TableCell className="font-mono text-xs text-slate-600">
-                          {ag.phone || "-"}
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-xs space-y-0.5">
-                            <div className="flex items-center gap-1.5">
-                              <Badge variant="sip" className="px-1.5 py-0 text-[10px]">
-                                SIP
-                              </Badge>
-                              <strong className="font-mono">{ag.rates?.SIP ?? ag.rate ?? 0}%</strong>
+                </TableHeader>
+                <TableBody>
+                  {agents.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                        No agents registered yet. Use the form on the left to add one.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    agents.map((ag) => {
+                      const totals = getAgentTotals(ag.id);
+                      return (
+                        <TableRow key={ag.id}>
+                          <TableCell className="font-semibold text-slate-900">
+                            {ag.name}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-slate-600">
+                            {ag.phone || "-"}
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-xs space-y-0.5">
+                              <div className="flex items-center gap-1.5">
+                                <Badge variant="sip" className="px-1.5 py-0 text-[10px]">
+                                  SIP
+                                </Badge>
+                                <strong className="font-mono">{ag.rates?.SIP ?? ag.rate ?? 0}%</strong>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <Badge variant="lumpsum" className="px-1.5 py-0 text-[10px]">
+                                  Lump
+                                </Badge>
+                                <strong className="font-mono">{ag.rates?.Lumpsum ?? ag.rate ?? 0}%</strong>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <Badge variant="cob" className="px-1.5 py-0 text-[10px]">
+                                  COB
+                                </Badge>
+                                <strong className="font-mono">{ag.rates?.["Change of Broker"] ?? ag.rate ?? 0}%</strong>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <Badge variant="switch" className="px-1.5 py-0 text-[10px]">
+                                  Switch
+                                </Badge>
+                                <strong className="font-mono">{ag.rates?.Switch ?? ag.rate ?? 0}%</strong>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              <Badge variant="lumpsum" className="px-1.5 py-0 text-[10px]">
-                                Lump
-                              </Badge>
-                              <strong className="font-mono">{ag.rates?.Lumpsum ?? ag.rate ?? 0}%</strong>
+                          </TableCell>
+                          <TableCell className="font-bold text-slate-900 font-mono">
+                            {formatINR(totals.sales)}
+                          </TableCell>
+                          <TableCell className="font-bold text-emerald-700 font-mono">
+                            {formatINR(totals.comm)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 text-xs px-2"
+                                onClick={() => handleEdit(ag)}
+                                title="Edit Agent Rates"
+                              >
+                                <Edit3 className="w-3.5 h-3.5 mr-1" />
+                                Edit
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                className="h-8 text-xs px-2"
+                                onClick={() => onViewSlip(ag.id)}
+                                title="View Month-End Slip"
+                              >
+                                <FileText className="w-3.5 h-3.5 mr-1" />
+                                Slip
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => handleDelete(ag)}
+                                title="Delete Agent"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              <Badge variant="cob" className="px-1.5 py-0 text-[10px]">
-                                COB
-                              </Badge>
-                              <strong className="font-mono">{ag.rates?.["Change of Broker"] ?? ag.rate ?? 0}%</strong>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <Badge variant="switch" className="px-1.5 py-0 text-[10px]">
-                                Switch
-                              </Badge>
-                              <strong className="font-mono">{ag.rates?.Switch ?? ag.rate ?? 0}%</strong>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-bold text-slate-900 font-mono">
-                          {formatINR(totals.sales)}
-                        </TableCell>
-                        <TableCell className="font-bold text-emerald-700 font-mono">
-                          {formatINR(totals.comm)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 text-xs px-2"
-                              onClick={() => handleEdit(ag)}
-                              title="Edit Agent Rates"
-                            >
-                              <Edit3 className="w-3.5 h-3.5 mr-1" />
-                              Edit
-                            </Button>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="h-8 text-xs px-2"
-                              onClick={() => onViewSlip(ag.id)}
-                              title="View Month-End Slip"
-                            >
-                              <FileText className="w-3.5 h-3.5 mr-1" />
-                              Slip
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => handleDelete(ag)}
-                              title="Delete Agent"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

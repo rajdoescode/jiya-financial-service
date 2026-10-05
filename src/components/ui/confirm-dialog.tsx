@@ -78,14 +78,14 @@ export function ConfirmDialog({
           </div>
         </div>
 
-        <DialogFooter className="mt-5 flex items-center justify-end gap-2.5 sm:gap-2">
+        <DialogFooter className="mt-5 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-2 w-full">
           <Button
             type="button"
             variant="outline"
             size="sm"
             disabled={isLoading}
             onClick={() => onOpenChange(false)}
-            className="text-xs font-semibold h-9 px-4 rounded-xl border-slate-300 hover:bg-slate-100"
+            className="w-full sm:w-auto text-xs font-semibold h-10 sm:h-9 px-4 rounded-xl border-slate-300 hover:bg-slate-100"
           >
             {cancelText}
           </Button>
@@ -96,7 +96,7 @@ export function ConfirmDialog({
             disabled={isLoading}
             onClick={handleConfirm}
             className={cn(
-              "text-xs font-semibold h-9 px-4 rounded-xl shadow-md transition-all",
+              "w-full sm:w-auto text-xs font-semibold h-10 sm:h-9 px-4 rounded-xl shadow-md transition-all",
               variant === "destructive"
                 ? "bg-red-600 hover:bg-red-700 text-white shadow-red-600/20"
                 : "bg-[#1e3a8a] hover:bg-[#1e40af] text-white shadow-blue-900/20"

@@ -118,17 +118,17 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
       {/* Add Client Card */}
       <div className="lg:col-span-4">
         <Card>
-          <CardHeader>
+          <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-2">
               <PlusCircle className="w-5 h-5 text-[#1e3a8a]" />
-              <CardTitle>Add Client & Map to Agent</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Add Client & Map to Agent</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="clientName">Client Full Name *</Label>
@@ -173,7 +173,7 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full h-11 sm:h-9"
                 disabled={createMutation.isPending}
               >
                 Save Client
@@ -183,94 +183,165 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
         </Card>
       </div>
 
-      {/* Clients List Table */}
+      {/* Clients List Table / Card Column */}
       <div className="lg:col-span-8">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-row items-center justify-between py-3.5 sm:py-4 px-4 sm:px-6">
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-[#1e3a8a]" />
-              <CardTitle>Registered Clients</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Registered Clients</CardTitle>
             </div>
             <span className="text-xs text-slate-500 font-medium">
               {clients.length} client(s)
             </span>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Client Name</TableHead>
-                  <TableHead>Mobile</TableHead>
-                  <TableHead>Mapped Agent</TableHead>
-                  <TableHead>Agent Comm %</TableHead>
-                  <TableHead>Total Invested</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {clients.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-slate-500">
-                      No clients registered yet. Use the form on the left to add one.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  clients.map((c) => {
-                    const agent = agents.find((a) => a.id === c.agentId);
-                    const totalInvested = getClientTotalInvested(c.id);
+            {/* Mobile Card List View (< md) */}
+            <div className="block md:hidden divide-y divide-slate-100">
+              {clients.length === 0 ? (
+                <div className="text-center py-8 text-slate-500 text-sm px-4">
+                  No clients registered yet. Use the form above to add one.
+                </div>
+              ) : (
+                clients.map((c) => {
+                  const agent = agents.find((a) => a.id === c.agentId);
+                  const totalInvested = getClientTotalInvested(c.id);
 
-                    return (
-                      <TableRow key={c.id}>
-                        <TableCell className="font-semibold text-slate-900">
-                          {c.name}
-                        </TableCell>
-                        <TableCell className="font-mono text-xs text-slate-600">
-                          {c.phone || "-"}
-                        </TableCell>
-                        <TableCell className="text-slate-800 font-medium">
-                          {agent ? agent.name : <span className="text-red-500">Unassigned</span>}
-                        </TableCell>
-                        <TableCell className="text-xs text-slate-600">
-                          {agent ? (
-                            <span className="font-mono">
-                              SIP: {agent.rates?.SIP ?? agent.rate ?? 0}% | Lump: {agent.rates?.Lumpsum ?? agent.rate ?? 0}%
-                            </span>
-                          ) : (
-                            "-"
-                          )}
-                        </TableCell>
-                        <TableCell className="font-bold text-slate-900 font-mono">
-                          {formatINR(totalInvested)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <Button
-                              variant="default"
-                              size="sm"
-                              className="h-8 text-xs px-2.5"
-                              onClick={() => onQuickInvest(c.id)}
-                              title="Record New Investment for this Client"
-                            >
-                              <Plus className="w-3.5 h-3.5 mr-1" />
-                              Invest
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => handleDelete(c)}
-                              title="Delete Client"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
+                  return (
+                    <div key={c.id} className="p-3.5 space-y-2.5 hover:bg-slate-50/60 transition-colors">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="font-semibold text-slate-900 text-sm">{c.name}</div>
+                          <div className="text-xs font-mono text-slate-500">
+                            {c.phone || "No mobile"}
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Button
+                            variant="default"
+                            size="sm"
+                            className="h-8 text-xs px-2.5"
+                            onClick={() => onQuickInvest(c.id)}
+                            title="Record New Investment for this Client"
+                          >
+                            <Plus className="w-3.5 h-3.5 mr-1" />
+                            Invest
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDelete(c)}
+                            title="Delete Client"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-50 p-2 rounded-lg border border-slate-100 text-xs space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-500">Mapped Agent:</span>
+                          <span className="font-semibold text-slate-800">
+                            {agent ? agent.name : <span className="text-red-500">Unassigned</span>}
+                          </span>
+                        </div>
+                        {agent && (
+                          <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                            <span>Rates:</span>
+                            <span>SIP {agent.rates?.SIP ?? agent.rate ?? 0}% | Lump {agent.rates?.Lumpsum ?? agent.rate ?? 0}%</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs pt-0.5">
+                        <span className="text-slate-400">Total Invested:</span>
+                        <strong className="text-slate-900 font-mono text-sm">{formatINR(totalInvested)}</strong>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Desktop Table View (>= md) */}
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Client Name</TableHead>
+                    <TableHead>Mobile</TableHead>
+                    <TableHead>Mapped Agent</TableHead>
+                    <TableHead>Agent Comm %</TableHead>
+                    <TableHead>Total Invested</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {clients.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                        No clients registered yet. Use the form on the left to add one.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    clients.map((c) => {
+                      const agent = agents.find((a) => a.id === c.agentId);
+                      const totalInvested = getClientTotalInvested(c.id);
+
+                      return (
+                        <TableRow key={c.id}>
+                          <TableCell className="font-semibold text-slate-900">
+                            {c.name}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-slate-600">
+                            {c.phone || "-"}
+                          </TableCell>
+                          <TableCell className="text-slate-800 font-medium">
+                            {agent ? agent.name : <span className="text-red-500">Unassigned</span>}
+                          </TableCell>
+                          <TableCell className="text-xs text-slate-600">
+                            {agent ? (
+                              <span className="font-mono">
+                                SIP: {agent.rates?.SIP ?? agent.rate ?? 0}% | Lump: {agent.rates?.Lumpsum ?? agent.rate ?? 0}%
+                              </span>
+                            ) : (
+                              "-"
+                            )}
+                          </TableCell>
+                          <TableCell className="font-bold text-slate-900 font-mono">
+                            {formatINR(totalInvested)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className="h-8 text-xs px-2.5"
+                                onClick={() => onQuickInvest(c.id)}
+                                title="Record New Investment for this Client"
+                              >
+                                <Plus className="w-3.5 h-3.5 mr-1" />
+                                Invest
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => handleDelete(c)}
+                                title="Delete Client"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

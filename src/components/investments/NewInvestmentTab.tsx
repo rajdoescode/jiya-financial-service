@@ -163,19 +163,19 @@ export function NewInvestmentTab({
   return (
     <div className="max-w-2xl mx-auto">
       <Card>
-        <CardHeader>
+        <CardHeader className="p-4 sm:p-6">
           <div className="flex items-center gap-2">
             <PlusCircle className="w-5 h-5 text-[#1e3a8a]" />
-            <CardTitle>Record New Mutual Fund Investment</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Record New Mutual Fund Investment</CardTitle>
           </div>
-          <CardDescription>
+          <CardDescription className="text-xs sm:text-sm">
             Enter client investment details to automatically calculate agent commission.
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {/* Client Selection */}
               <div className="space-y-1.5">
                 <Label htmlFor="invClient">Select Client *</Label>
@@ -297,7 +297,7 @@ export function NewInvestmentTab({
             </div>
 
             {/* Live Commission Preview Box */}
-            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3.5 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <div className="space-y-1">
                 <div className="text-xs font-semibold text-emerald-800 flex items-center gap-1.5">
                   <Calculator className="w-3.5 h-3.5 text-emerald-600" />
@@ -307,23 +307,28 @@ export function NewInvestmentTab({
                   {formatINR(numericAmount)} × {numericRate}% = {formatINR(liveCommission)}
                 </div>
               </div>
-              <div className="text-2xl font-bold font-mono text-emerald-700">
+              <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-700">
                 {formatINR(liveCommission)}
               </div>
             </div>
 
             {/* Form Actions */}
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-2">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={resetForm}
                 disabled={createMutation.isPending}
+                className="w-full sm:w-auto h-11 sm:h-9"
               >
                 <RotateCcw className="w-4 h-4 mr-1.5" />
                 Reset
               </Button>
-              <Button type="submit" disabled={createMutation.isPending}>
+              <Button
+                type="submit"
+                disabled={createMutation.isPending}
+                className="w-full sm:w-auto h-11 sm:h-9"
+              >
                 Save Investment
                 <ArrowRight className="w-4 h-4 ml-1.5" />
               </Button>

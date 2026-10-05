@@ -98,99 +98,113 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Controls / Filter Bar */}
-      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-wrap items-end gap-3 max-w-4xl mx-auto no-print">
-        <div className="w-full sm:w-auto flex-1 min-w-[200px] space-y-1">
-          <label className="text-xs font-semibold text-slate-700">Select Agent</label>
-          <Select value={selectedAgentId} onValueChange={setSelectedAgentId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Choose Agent" />
-            </SelectTrigger>
-            <SelectContent>
-              {agents.map((a) => (
-                <SelectItem key={a.id} value={a.id}>
-                  {a.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm max-w-4xl mx-auto no-print">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3 items-end">
+          <div className="sm:col-span-2 lg:col-span-5 space-y-1">
+            <label className="text-xs font-semibold text-slate-700">Select Agent</label>
+            <Select value={selectedAgentId} onValueChange={setSelectedAgentId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose Agent" />
+              </SelectTrigger>
+              <SelectContent>
+                {agents.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        <div className="w-full sm:w-auto min-w-[120px] space-y-1">
-          <label className="text-xs font-semibold text-slate-700">Year</label>
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger>
-              <SelectValue placeholder="Year" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Years</SelectItem>
-              <SelectItem value="2026">2026</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          <div className="sm:col-span-1 lg:col-span-3 grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-700">Year</label>
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All</SelectItem>
+                  <SelectItem value="2026">2026</SelectItem>
+                  <SelectItem value="2025">2025</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="w-full sm:w-auto min-w-[140px] space-y-1">
-          <label className="text-xs font-semibold text-slate-700">Month</label>
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger>
-              <SelectValue placeholder="Month" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Months</SelectItem>
-              <SelectItem value="01">January</SelectItem>
-              <SelectItem value="02">February</SelectItem>
-              <SelectItem value="03">March</SelectItem>
-              <SelectItem value="04">April</SelectItem>
-              <SelectItem value="05">May</SelectItem>
-              <SelectItem value="06">June</SelectItem>
-              <SelectItem value="07">July</SelectItem>
-              <SelectItem value="08">August</SelectItem>
-              <SelectItem value="09">September</SelectItem>
-              <SelectItem value="10">October</SelectItem>
-              <SelectItem value="11">November</SelectItem>
-              <SelectItem value="12">December</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-700">Month</label>
+              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Month" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All</SelectItem>
+                  <SelectItem value="01">Jan</SelectItem>
+                  <SelectItem value="02">Feb</SelectItem>
+                  <SelectItem value="03">Mar</SelectItem>
+                  <SelectItem value="04">Apr</SelectItem>
+                  <SelectItem value="05">May</SelectItem>
+                  <SelectItem value="06">Jun</SelectItem>
+                  <SelectItem value="07">Jul</SelectItem>
+                  <SelectItem value="08">Aug</SelectItem>
+                  <SelectItem value="09">Sep</SelectItem>
+                  <SelectItem value="10">Oct</SelectItem>
+                  <SelectItem value="11">Nov</SelectItem>
+                  <SelectItem value="12">Dec</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-        <div className="ml-auto flex items-center gap-2">
-          <Button variant="default" size="sm" onClick={handlePrint} className="gap-1.5">
-            <Printer className="w-4 h-4" />
-            Print Statement
-          </Button>
+          <div className="sm:col-span-1 lg:col-span-4 flex items-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handlePrint}
+              className="flex-1 h-10 sm:h-9 gap-1.5"
+            >
+              <Printer className="w-4 h-4" />
+              Print
+            </Button>
 
-          <Button variant="success" size="sm" onClick={handleCopyWhatsApp} className="gap-1.5">
-            <MessageCircle className="w-4 h-4" />
-            Copy WhatsApp
-          </Button>
+            <Button
+              variant="success"
+              size="sm"
+              onClick={handleCopyWhatsApp}
+              className="flex-1 h-10 sm:h-9 gap-1.5"
+            >
+              <MessageCircle className="w-4 h-4" />
+              WhatsApp
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Printable Statement Document */}
-      <div className="statement-card bg-white border-2 border-slate-300 rounded-lg p-6 sm:p-10 max-w-4xl mx-auto shadow-sm">
+      <div className="statement-card bg-white border border-slate-300 sm:border-2 rounded-xl p-4 sm:p-10 max-w-4xl mx-auto shadow-sm">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-center justify-center text-center gap-3 border-b-2 border-dashed border-slate-300 pb-5 mb-6">
+        <div className="flex flex-col sm:flex-row items-center justify-center text-center gap-2.5 sm:gap-3 border-b-2 border-dashed border-slate-300 pb-4 sm:pb-5 mb-4 sm:mb-6">
           <Image
             src="/logo.png"
             alt="Jiya Financial Services"
-            width={48}
-            height={48}
-            className="object-contain"
+            width={44}
+            height={44}
+            className="object-contain w-9 h-9 sm:w-12 sm:h-12"
           />
           <div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-wide text-[#1e3a8a]">
+            <h2 className="text-lg sm:text-2xl font-black tracking-wide text-[#1e3a8a]">
               JIYA FINANCIAL SERVICES
             </h2>
-            <p className="text-xs sm:text-sm font-medium text-slate-600">
+            <p className="text-[11px] sm:text-sm font-medium text-slate-600">
               Agent Mutual Fund Sales & Commission Settlement Statement
             </p>
           </div>
         </div>
 
         {/* Metadata */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm mb-4 sm:mb-6">
           <div className="space-y-1">
             <div>
               <span className="text-slate-500 font-medium">Agent Name: </span>
@@ -202,7 +216,7 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
             </div>
             <div>
               <span className="text-slate-500 font-medium">Commission Rates: </span>
-              <span className="text-slate-700 text-xs font-mono">
+              <span className="text-slate-700 text-[11px] sm:text-xs font-mono">
                 SIP: {agent?.ratesSummary?.SIP ?? 0}% | Lump: {agent?.ratesSummary?.Lumpsum ?? 0}% | COB:{" "}
                 {agent?.ratesSummary?.["Change of Broker"] ?? 0}% | Switch: {agent?.ratesSummary?.Switch ?? 0}%
               </span>
@@ -229,45 +243,45 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
         </div>
 
         {/* Summary Figures Grid */}
-        <div className="bg-slate-100/90 rounded-lg p-4 sm:p-5 mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-center border border-slate-200">
-          <div className="p-2">
-            <div className="text-[11px] font-semibold text-slate-500">SIP VOLUME</div>
-            <div className="text-sm sm:text-base font-bold text-slate-900 mt-1">
+        <div className="bg-slate-50 rounded-xl p-3 sm:p-5 mb-4 sm:mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 text-center border border-slate-200">
+          <div className="p-1.5 sm:p-2 bg-white sm:bg-transparent rounded-lg border sm:border-0 border-slate-100">
+            <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500">SIP VOLUME</div>
+            <div className="text-xs sm:text-base font-bold text-slate-900 mt-0.5 sm:mt-1 font-mono truncate">
               {formatINR(agg?.sip_total)}
             </div>
           </div>
 
-          <div className="p-2">
-            <div className="text-[11px] font-semibold text-slate-500">LUMPSUM</div>
-            <div className="text-sm sm:text-base font-bold text-slate-900 mt-1">
+          <div className="p-1.5 sm:p-2 bg-white sm:bg-transparent rounded-lg border sm:border-0 border-slate-100">
+            <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500">LUMPSUM</div>
+            <div className="text-xs sm:text-base font-bold text-slate-900 mt-0.5 sm:mt-1 font-mono truncate">
               {formatINR(agg?.lumpsum_total)}
             </div>
           </div>
 
-          <div className="p-2">
-            <div className="text-[11px] font-semibold text-slate-500">CHANGE OF BROKER</div>
-            <div className="text-sm sm:text-base font-bold text-slate-900 mt-1">
+          <div className="p-1.5 sm:p-2 bg-white sm:bg-transparent rounded-lg border sm:border-0 border-slate-100">
+            <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500">COB VOLUME</div>
+            <div className="text-xs sm:text-base font-bold text-slate-900 mt-0.5 sm:mt-1 font-mono truncate">
               {formatINR(agg?.cob_total)}
             </div>
           </div>
 
-          <div className="p-2">
-            <div className="text-[11px] font-semibold text-slate-500">SWITCH VOLUME</div>
-            <div className="text-sm sm:text-base font-bold text-slate-900 mt-1">
+          <div className="p-1.5 sm:p-2 bg-white sm:bg-transparent rounded-lg border sm:border-0 border-slate-100">
+            <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500">SWITCH VOLUME</div>
+            <div className="text-xs sm:text-base font-bold text-slate-900 mt-0.5 sm:mt-1 font-mono truncate">
               {formatINR(agg?.switch_total)}
             </div>
           </div>
 
-          <div className="p-2">
-            <div className="text-[11px] font-semibold text-slate-500">TOTAL SALES</div>
-            <div className="text-sm sm:text-base font-bold text-[#1e3a8a] mt-1">
+          <div className="p-1.5 sm:p-2 bg-white sm:bg-transparent rounded-lg border sm:border-0 border-slate-100">
+            <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500">TOTAL SALES</div>
+            <div className="text-xs sm:text-base font-bold text-[#1e3a8a] mt-0.5 sm:mt-1 font-mono truncate">
               {formatINR(agg?.total_sales)}
             </div>
           </div>
 
-          <div className="p-2 sm:border-l-2 border-slate-300">
-            <div className="text-[11px] font-bold text-emerald-800">NET COMMISSION</div>
-            <div className="text-base sm:text-lg font-bold text-emerald-700 font-mono mt-1">
+          <div className="p-1.5 sm:p-2 col-span-2 sm:col-span-1 sm:border-l-2 border-slate-300 bg-emerald-50 sm:bg-transparent rounded-lg border sm:border-0 border-emerald-100">
+            <div className="text-[10px] sm:text-[11px] font-bold text-emerald-800">NET COMMISSION</div>
+            <div className="text-sm sm:text-lg font-bold text-emerald-700 font-mono mt-0.5 sm:mt-1 truncate">
               {formatINR(agg?.total_commission)}
             </div>
           </div>
@@ -278,7 +292,55 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
             Detailed Transactions Breakdown ({agg?.count || 0})
           </h4>
-          <div className="border border-slate-200 rounded-md overflow-hidden">
+
+          {/* Mobile Breakdown Cards (< md) */}
+          <div className="block md:hidden border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
+            {isLoading ? (
+              <div className="text-center py-6 text-slate-400 text-xs">
+                Loading statement details...
+              </div>
+            ) : !agg?.transactions?.length ? (
+              <div className="text-center py-6 text-slate-400 text-xs px-3">
+                No transactions recorded for {agent?.name} in {formatPeriod(selectedYear, selectedMonth)}.
+              </div>
+            ) : (
+              agg.transactions.map((t: any, idx: number) => (
+                <div key={idx} className="p-3 space-y-1.5 bg-white">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="font-semibold text-slate-900 text-xs">
+                        {t.client_name || "Client"}
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-mono">
+                        {formatDisplayDate(t.date)}
+                      </div>
+                    </div>
+                    <div className="shrink-0">{renderBadge(t.type)}</div>
+                  </div>
+
+                  {t.scheme && (
+                    <div className="text-[11px] text-slate-600 bg-slate-50 px-2 py-0.5 rounded truncate">
+                      {t.scheme}
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between text-xs pt-0.5">
+                    <div>
+                      <span className="text-slate-400">Amt: </span>
+                      <strong className="text-slate-900 font-mono">{formatINR(t.amount)}</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400">Comm ({t.rate ?? t.commission_rate}%): </span>
+                      <strong className="text-emerald-700 font-mono">{formatINR(t.commission)}</strong>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Desktop Breakdown Table (>= md, and printed) */}
+          <div className="hidden md:block print:block border border-slate-200 rounded-md overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50">
@@ -325,7 +387,7 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
         </div>
 
         {/* Footer with sign-off */}
-        <div className="mt-12 pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-slate-500 gap-6">
+        <div className="mt-8 sm:mt-12 pt-4 sm:pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-slate-500 gap-4 sm:gap-6">
           <div>
             Prepared By: <strong className="text-slate-800">Jiya Financial Services</strong>
           </div>

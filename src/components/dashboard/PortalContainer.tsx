@@ -76,58 +76,63 @@ export function PortalContainer({ initialUser }: PortalContainerProps) {
       <Header user={initialUser} onDataRestored={handleDataRestored} />
 
       {/* Tabs Navigation & Main Content */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Navigation Bar */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-1 mb-6 no-print">
-            <TabsList className="bg-transparent border-0 h-auto p-0 flex flex-wrap gap-1">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-1.5 mb-4 sm:mb-6 no-print overflow-x-auto">
+            <TabsList className="bg-transparent border-0 h-auto p-0 flex flex-nowrap sm:flex-wrap gap-1 min-w-max sm:min-w-0">
               <TabsTrigger
                 value="dashboard"
-                className="gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-md py-2 px-3 text-xs sm:text-sm font-semibold border-0"
+                className="gap-1.5 sm:gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-lg py-2 px-3 text-xs sm:text-sm font-semibold border-0 shrink-0"
               >
-                <BarChart3 className="w-4 h-4" />
-                Sales & Commission Dashboard
+                <BarChart3 className="w-4 h-4 shrink-0" />
+                <span>Dashboard</span>
+                <span className="hidden lg:inline">&nbsp;& Commission</span>
               </TabsTrigger>
 
               <TabsTrigger
                 value="add-investment"
-                className="gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-md py-2 px-3 text-xs sm:text-sm font-semibold border-0"
+                className="gap-1.5 sm:gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-lg py-2 px-3 text-xs sm:text-sm font-semibold border-0 shrink-0"
               >
-                <PlusCircle className="w-4 h-4" />
-                New Investment Entry
+                <PlusCircle className="w-4 h-4 shrink-0" />
+                <span>New Entry</span>
+                <span className="hidden lg:inline">&nbsp;Investment</span>
               </TabsTrigger>
 
               <TabsTrigger
                 value="statement"
-                className="gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-md py-2 px-3 text-xs sm:text-sm font-semibold border-0"
+                className="gap-1.5 sm:gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-lg py-2 px-3 text-xs sm:text-sm font-semibold border-0 shrink-0"
               >
-                <FileText className="w-4 h-4" />
-                Month-End Agent Slip
+                <FileText className="w-4 h-4 shrink-0" />
+                <span>Agent Slip</span>
+                <span className="hidden lg:inline">&nbsp;Month-End</span>
               </TabsTrigger>
 
               <TabsTrigger
                 value="agents"
-                className="gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-md py-2 px-3 text-xs sm:text-sm font-semibold border-0"
+                className="gap-1.5 sm:gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-lg py-2 px-3 text-xs sm:text-sm font-semibold border-0 shrink-0"
               >
-                <Users2 className="w-4 h-4" />
-                Agents & Rates
+                <Users2 className="w-4 h-4 shrink-0" />
+                <span>Agents</span>
+                <span className="hidden lg:inline">&nbsp;& Rates</span>
               </TabsTrigger>
 
               <TabsTrigger
                 value="clients"
-                className="gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-md py-2 px-3 text-xs sm:text-sm font-semibold border-0"
+                className="gap-1.5 sm:gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-lg py-2 px-3 text-xs sm:text-sm font-semibold border-0 shrink-0"
               >
-                <Users className="w-4 h-4" />
-                Clients
+                <Users className="w-4 h-4 shrink-0" />
+                <span>Clients</span>
               </TabsTrigger>
 
               {isAdmin && (
                 <TabsTrigger
                   value="employees"
-                  className="gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-md py-2 px-3 text-xs sm:text-sm font-semibold border-0"
+                  className="gap-1.5 sm:gap-2 data-[state=active]:bg-[#1e3a8a] data-[state=active]:text-white rounded-lg py-2 px-3 text-xs sm:text-sm font-semibold border-0 shrink-0"
                 >
-                  <ShieldAlert className="w-4 h-4" />
-                  Manage Employees
+                  <ShieldAlert className="w-4 h-4 shrink-0" />
+                  <span>Employees</span>
+                  <span className="hidden lg:inline">&nbsp;Manage</span>
                 </TabsTrigger>
               )}
             </TabsList>

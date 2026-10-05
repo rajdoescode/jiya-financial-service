@@ -187,21 +187,21 @@ export function EmployeesTab({ onOpenAdminPasswordModal }: EmployeesTabProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Left Column: Create Form + Admin Settings */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-4 sm:space-y-6">
           {/* Create Employee Account */}
           <Card>
-            <CardHeader>
+            <CardHeader className="p-4 sm:p-6">
               <div className="flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-[#1e3a8a]" />
-                <CardTitle>Create Employee Account</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Create Employee Account</CardTitle>
               </div>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Add employee login credentials to access the sales portal.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="empName">Employee Full Name *</Label>
@@ -261,7 +261,7 @@ export function EmployeesTab({ onOpenAdminPasswordModal }: EmployeesTabProps) {
 
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full h-11 sm:h-9"
                   disabled={createMutation.isPending}
                 >
                   Create Employee Login
@@ -272,19 +272,19 @@ export function EmployeesTab({ onOpenAdminPasswordModal }: EmployeesTabProps) {
 
           {/* Admin Password Security Card */}
           <Card>
-            <CardHeader>
+            <CardHeader className="p-4 sm:p-6">
               <div className="flex items-center gap-2">
                 <KeyRound className="w-5 h-5 text-[#1e3a8a]" />
-                <CardTitle>Admin Password Settings</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Admin Password Settings</CardTitle>
               </div>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Logged in as Administrator (<code>admin</code>). Keep your admin credentials secure.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
               <Button
                 variant="secondary"
-                className="w-full"
+                className="w-full h-11 sm:h-9"
                 onClick={onOpenAdminPasswordModal}
               >
                 <KeyRound className="w-4 h-4 mr-2" />
@@ -297,96 +297,165 @@ export function EmployeesTab({ onOpenAdminPasswordModal }: EmployeesTabProps) {
         {/* Right Column: Employees List Table */}
         <div className="lg:col-span-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between py-3.5 sm:py-4 px-4 sm:px-6">
               <div className="flex items-center gap-2">
                 <ShieldAlert className="w-5 h-5 text-[#1e3a8a]" />
-                <CardTitle>Registered Employee Accounts</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Registered Employee Accounts</CardTitle>
               </div>
               <span className="text-xs text-slate-500 font-medium">
                 {employees.length} employee(s)
               </span>
             </CardHeader>
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Employee Name</TableHead>
-                    <TableHead>User ID</TableHead>
-                    <TableHead>Created Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-slate-400">
-                        Loading employee accounts...
-                      </TableCell>
-                    </TableRow>
-                  ) : employees.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-slate-500">
-                        No employee accounts created yet. Use the form on the left to add one.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    employees.map((e) => (
-                      <TableRow key={e.id}>
-                        <TableCell className="font-semibold text-slate-900">
-                          {e.name}
-                        </TableCell>
-                        <TableCell>
-                          <code className="bg-slate-100 text-[#1e3a8a] px-2 py-0.5 rounded font-mono font-bold text-xs">
-                            {e.username}
-                          </code>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs text-slate-600">
-                          {e.createdAt}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="employee" className="text-[11px] py-0">
-                            Active
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <Button
-                              variant="success"
-                              size="sm"
-                              className="h-8 text-xs px-2"
-                              onClick={() => copyCredentials(e.name, e.username)}
-                              title="Copy Login Details for Employee"
-                            >
-                              <Copy className="w-3.5 h-3.5 mr-1" />
-                              Copy Details
-                            </Button>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="h-8 text-xs px-2"
-                              onClick={() => setResetModalEmployee(e)}
-                              title="Reset Password"
-                            >
-                              <Edit2 className="w-3.5 h-3.5 mr-1" />
-                              Reset Pass
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => handleDelete(e)}
-                              title="Delete employee account"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
+              {/* Mobile Card List View (< md) */}
+              <div className="block md:hidden divide-y divide-slate-100">
+                {isLoading ? (
+                  <div className="text-center py-8 text-slate-400 text-sm">
+                    Loading employee accounts...
+                  </div>
+                ) : employees.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500 text-sm px-4">
+                    No employee accounts created yet. Use the form above to add one.
+                  </div>
+                ) : (
+                  employees.map((e) => (
+                    <div key={e.id} className="p-3.5 space-y-2.5 hover:bg-slate-50/60 transition-colors">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="font-semibold text-slate-900 text-sm">{e.name}</div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <code className="bg-slate-100 text-[#1e3a8a] px-1.5 py-0.5 rounded font-mono font-bold text-xs">
+                              {e.username}
+                            </code>
+                            <span className="text-xs text-slate-400 font-mono">
+                              {e.createdAt}
+                            </span>
                           </div>
+                        </div>
+                        <Badge variant="employee" className="text-[10px] py-0 shrink-0">
+                          Active
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-1.5 pt-1">
+                        <Button
+                          variant="success"
+                          size="sm"
+                          className="h-8 text-xs px-2"
+                          onClick={() => copyCredentials(e.name, e.username)}
+                          title="Copy Login Details for Employee"
+                        >
+                          <Copy className="w-3.5 h-3.5 mr-1" />
+                          Copy
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="h-8 text-xs px-2"
+                          onClick={() => setResetModalEmployee(e)}
+                          title="Reset Password"
+                        >
+                          <Edit2 className="w-3.5 h-3.5 mr-1" />
+                          Reset
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDelete(e)}
+                          title="Delete employee account"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Desktop Table View (>= md) */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Employee Name</TableHead>
+                      <TableHead>User ID</TableHead>
+                      <TableHead>Created Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {isLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-slate-400">
+                          Loading employee accounts...
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : employees.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-slate-500">
+                          No employee accounts created yet. Use the form on the left to add one.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      employees.map((e) => (
+                        <TableRow key={e.id}>
+                          <TableCell className="font-semibold text-slate-900">
+                            {e.name}
+                          </TableCell>
+                          <TableCell>
+                            <code className="bg-slate-100 text-[#1e3a8a] px-2 py-0.5 rounded font-mono font-bold text-xs">
+                              {e.username}
+                            </code>
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-slate-600">
+                            {e.createdAt}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="employee" className="text-[11px] py-0">
+                              Active
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <Button
+                                variant="success"
+                                size="sm"
+                                className="h-8 text-xs px-2"
+                                onClick={() => copyCredentials(e.name, e.username)}
+                                title="Copy Login Details for Employee"
+                              >
+                                <Copy className="w-3.5 h-3.5 mr-1" />
+                                Copy Details
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                className="h-8 text-xs px-2"
+                                onClick={() => setResetModalEmployee(e)}
+                                title="Reset Password"
+                              >
+                                <Edit2 className="w-3.5 h-3.5 mr-1" />
+                                Reset Pass
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => handleDelete(e)}
+                                title="Delete employee account"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -441,7 +510,7 @@ export function EmployeesTab({ onOpenAdminPasswordModal }: EmployeesTabProps) {
                 />
               </div>
 
-              <DialogFooter className="pt-2">
+              <DialogFooter className="pt-2 flex flex-col-reverse sm:flex-row gap-2 w-full">
                 <Button
                   type="button"
                   variant="secondary"
@@ -449,10 +518,15 @@ export function EmployeesTab({ onOpenAdminPasswordModal }: EmployeesTabProps) {
                     setResetModalEmployee(null);
                     setResetPasswordVal("");
                   }}
+                  className="w-full sm:w-auto h-10 sm:h-9"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={resetPasswordMutation.isPending}>
+                <Button
+                  type="submit"
+                  disabled={resetPasswordMutation.isPending}
+                  className="w-full sm:w-auto h-10 sm:h-9"
+                >
                   {resetPasswordMutation.isPending ? "Updating..." : "Update Password"}
                 </Button>
               </DialogFooter>

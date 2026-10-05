@@ -158,16 +158,17 @@ export function AdminPasswordDialog({ open, onOpenChange }: AdminPasswordDialogP
             </div>
           </div>
 
-          <DialogFooter className="pt-2">
+          <DialogFooter className="pt-2 flex flex-col-reverse sm:flex-row gap-2 w-full">
             <Button
               type="button"
               variant="secondary"
               onClick={() => onOpenChange(false)}
               disabled={loading}
+              className="w-full sm:w-auto h-10 sm:h-9"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto h-10 sm:h-9">
               {loading ? "Updating..." : "Update Password"}
             </Button>
           </DialogFooter>
