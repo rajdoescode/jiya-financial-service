@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Printer, MessageCircle, FileText, CheckCircle2 } from "lucide-react";
+import { Printer, MessageCircle, FileText, CheckCircle2, Send, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 interface StatementTabProps {
@@ -47,8 +47,8 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
     window.print();
   };
 
-  const handleCopyWhatsApp = () => {
-    if (!agent || !agg) return;
+  const generateWhatsAppMessage = () => {
+    if (!agent || !agg) return "";
 
     const periodLabel = formatPeriod(selectedYear, selectedMonth);
 
@@ -71,7 +71,13 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
     text += `💵 *NET COMMISSION PAYABLE: ${formatINR(agg.total_commission)}*\n`;
     text += `Total Transactions: ${agg.count}\n`;
     text += `------------------------------------\n`;
-    text += `Thank you for your business!`;
+    text += `Thank you for your partnership!`;
+    return text;
+  };
+
+  const handleCopyWhatsApp = () => {
+    const text = generateWhatsAppMessage();
+    if (!text) return;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {
@@ -80,6 +86,26 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
     } else {
       window.prompt("Copy WhatsApp statement text below:", text);
     }
+  };
+
+  const handleSendWhatsApp = () => {
+    const text = generateWhatsAppMessage();
+    if (!text) return;
+
+    const rawPhone = (agent?.phone || "").replace(/\D/g, "");
+    let phoneParam = "";
+    if (rawPhone.length === 10) {
+      phoneParam = `91${rawPhone}`;
+    } else if (rawPhone.length > 10) {
+      phoneParam = rawPhone;
+    }
+
+    const waUrl = phoneParam
+      ? `https://api.whatsapp.com/send?phone=${phoneParam}&text=${encodeURIComponent(text)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+
+    window.open(waUrl, "_blank", "noopener,noreferrer");
+    toast.success(`🚀 Opening WhatsApp for ${agent?.name || "Agent"}!`);
   };
 
   const renderBadge = (type: string) => {
@@ -100,9 +126,9 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Controls / Filter Bar */}
-      <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm max-w-4xl mx-auto no-print">
+      <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm max-w-4xl mx-auto no-print space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3 items-end">
-          <div className="sm:col-span-2 lg:col-span-5 space-y-1">
+          <div className="sm:col-span-2 lg:col-span-6 space-y-1">
             <label className="text-xs font-semibold text-slate-700">Select Agent</label>
             <Select value={selectedAgentId} onValueChange={setSelectedAgentId}>
               <SelectTrigger>
@@ -118,67 +144,76 @@ export function StatementTab({ agents, initialAgentId }: StatementTabProps) {
             </Select>
           </div>
 
-          <div className="sm:col-span-1 lg:col-span-3 grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Year</label>
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Year" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All</SelectItem>
-                  <SelectItem value="2026">2026</SelectItem>
-                  <SelectItem value="2025">2025</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Month</label>
-              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Month" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All</SelectItem>
-                  <SelectItem value="01">Jan</SelectItem>
-                  <SelectItem value="02">Feb</SelectItem>
-                  <SelectItem value="03">Mar</SelectItem>
-                  <SelectItem value="04">Apr</SelectItem>
-                  <SelectItem value="05">May</SelectItem>
-                  <SelectItem value="06">Jun</SelectItem>
-                  <SelectItem value="07">Jul</SelectItem>
-                  <SelectItem value="08">Aug</SelectItem>
-                  <SelectItem value="09">Sep</SelectItem>
-                  <SelectItem value="10">Oct</SelectItem>
-                  <SelectItem value="11">Nov</SelectItem>
-                  <SelectItem value="12">Dec</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="sm:col-span-1 lg:col-span-3 space-y-1">
+            <label className="text-xs font-semibold text-slate-700">Year</label>
+            <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <SelectTrigger>
+                <SelectValue placeholder="Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All</SelectItem>
+                <SelectItem value="2026">2026</SelectItem>
+                <SelectItem value="2025">2025</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="sm:col-span-1 lg:col-span-4 flex items-center gap-2">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={handlePrint}
-              className="flex-1 h-10 sm:h-9 gap-1.5"
-            >
-              <Printer className="w-4 h-4" />
-              Print
-            </Button>
-
-            <Button
-              variant="success"
-              size="sm"
-              onClick={handleCopyWhatsApp}
-              className="flex-1 h-10 sm:h-9 gap-1.5"
-            >
-              <MessageCircle className="w-4 h-4" />
-              WhatsApp
-            </Button>
+          <div className="sm:col-span-1 lg:col-span-3 space-y-1">
+            <label className="text-xs font-semibold text-slate-700">Month</label>
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger>
+                <SelectValue placeholder="Month" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All</SelectItem>
+                <SelectItem value="01">Jan</SelectItem>
+                <SelectItem value="02">Feb</SelectItem>
+                <SelectItem value="03">Mar</SelectItem>
+                <SelectItem value="04">Apr</SelectItem>
+                <SelectItem value="05">May</SelectItem>
+                <SelectItem value="06">Jun</SelectItem>
+                <SelectItem value="07">Jul</SelectItem>
+                <SelectItem value="08">Aug</SelectItem>
+                <SelectItem value="09">Sep</SelectItem>
+                <SelectItem value="10">Oct</SelectItem>
+                <SelectItem value="11">Nov</SelectItem>
+                <SelectItem value="12">Dec</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+        </div>
+
+        {/* Action Buttons Row */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-1 border-t border-slate-100">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handlePrint}
+            className="flex-1 sm:flex-none h-10 sm:h-9 gap-1.5"
+          >
+            <Printer className="w-4 h-4" />
+            Print Statement
+          </Button>
+
+          <Button
+            variant="success"
+            size="sm"
+            onClick={handleSendWhatsApp}
+            className="flex-1 sm:flex-none h-10 sm:h-9 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
+            <Send className="w-4 h-4" />
+            Send on WhatsApp
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopyWhatsApp}
+            className="flex-1 sm:flex-none h-10 sm:h-9 gap-1.5 border-slate-300"
+          >
+            <Copy className="w-4 h-4" />
+            Copy Text
+          </Button>
         </div>
       </div>
 

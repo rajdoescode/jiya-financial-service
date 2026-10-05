@@ -57,6 +57,33 @@ export class ClientService {
     };
   }
 
+  static async updateClient(
+    id: string,
+    data: { name?: string; phone?: string; agentId?: string }
+  ): Promise<IClient | null> {
+    await connectToDatabase();
+    const updateObj: Record<string, any> = {};
+    if (data.name !== undefined) updateObj.name = data.name.trim();
+    if (data.phone !== undefined) updateObj.phone = data.phone.trim();
+    if (data.agentId !== undefined) updateObj.agentId = data.agentId;
+
+    const doc = await ClientModel.findOneAndUpdate(
+      { id },
+      { $set: updateObj },
+      { new: true }
+    );
+    if (!doc) return null;
+
+    return {
+      id: doc.id,
+      name: doc.name,
+      phone: doc.phone || "",
+      agentId: doc.agentId,
+      createdAt: doc.createdAt?.toISOString(),
+      updatedAt: doc.updatedAt?.toISOString(),
+    };
+  }
+
   static async deleteClient(id: string): Promise<boolean> {
     await connectToDatabase();
     const res = await ClientModel.deleteOne({ id });

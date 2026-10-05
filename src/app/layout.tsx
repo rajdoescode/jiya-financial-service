@@ -7,12 +7,19 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: "#1e3a8a",
 };
 
 export const metadata: Metadata = {
   title: "Jiya Financial Services - Mutual Fund Sales & Commission Portal",
   description:
     "Mutual Fund Sales, Agent Commission Tracking, and Settlement Statement Portal by Jiya Financial Services",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Jiya Financial",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },

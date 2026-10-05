@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { IAgent, IClient, IInvestment } from "@/types";
 import { formatINR } from "@/lib/utils/currency";
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Users, PlusCircle, Trash2, Plus } from "lucide-react";
+import { Users, PlusCircle, Trash2, Plus, Edit3, RotateCcw, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface ClientsTabProps {
@@ -21,9 +21,11 @@ interface ClientsTabProps {
 
 export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
   const queryClient = useQueryClient();
+  const [editId, setEditId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [agentId, setAgentId] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [deleteTargetClient, setDeleteTargetClient] = useState<IClient | null>(null);
 
   const { data: clients = [] } = useQuery<IClient[]>({
@@ -46,26 +48,31 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
     },
   });
 
-  const createMutation = useMutation({
+  const saveMutation = useMutation({
     mutationFn: async (payload: { name: string; phone: string; agentId: string }) => {
-      const res = await fetch("/api/clients", {
-        method: "POST",
+      const url = editId ? `/api/clients/${editId}` : "/api/clients";
+      const method = editId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       const json = await res.json();
       if (!res.ok || !json.success) {
-        throw new Error(json.error?.message || "Failed to create client");
+        throw new Error(json.error?.message || "Failed to save client");
       }
       return json.data;
     },
     onSuccess: () => {
-      toast.success("✅ Client mapped with agent successfully!");
+      toast.success(
+        editId
+          ? "✅ Client details updated successfully!"
+          : "✅ Client mapped with agent successfully!"
+      );
       queryClient.invalidateQueries({ queryKey: ["clients"] });
-      setName("");
-      setPhone("");
-      setAgentId("");
+      resetForm();
     },
     onError: (err) => {
       toast.error((err as Error).message || "Save client failed");
@@ -87,6 +94,20 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
     },
   });
 
+  const resetForm = () => {
+    setEditId(null);
+    setName("");
+    setPhone("");
+    setAgentId("");
+  };
+
+  const handleEdit = (client: IClient) => {
+    setEditId(client.id);
+    setName(client.name);
+    setPhone(client.phone || "");
+    setAgentId(client.agentId || "");
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -98,7 +119,7 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
       return;
     }
 
-    createMutation.mutate({
+    saveMutation.mutate({
       name: name.trim(),
       phone: phone.trim(),
       agentId,
@@ -117,15 +138,33 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
     return total;
   };
 
+  const filteredClients = useMemo(() => {
+    if (!searchQuery.trim()) return clients;
+    const q = searchQuery.toLowerCase().trim();
+    return clients.filter((c) => {
+      const clientName = c.name?.toLowerCase() || "";
+      const phone = c.phone || "";
+      const mappedAg = agents.find((a) => a.id === c.agentId);
+      const agentName = mappedAg?.name?.toLowerCase() || "";
+      return clientName.includes(q) || phone.includes(q) || agentName.includes(q);
+    });
+  }, [clients, agents, searchQuery]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-      {/* Add Client Card */}
+      {/* Add / Edit Client Card */}
       <div className="lg:col-span-4">
         <Card>
           <CardHeader className="p-4 sm:p-6">
             <div className="flex items-center gap-2">
-              <PlusCircle className="w-5 h-5 text-[#1e3a8a]" />
-              <CardTitle className="text-base sm:text-lg">Add Client & Map to Agent</CardTitle>
+              {editId ? (
+                <Edit3 className="w-5 h-5 text-[#1e3a8a]" />
+              ) : (
+                <PlusCircle className="w-5 h-5 text-[#1e3a8a]" />
+              )}
+              <CardTitle className="text-base sm:text-lg">
+                {editId ? "Edit Client & Agent Mapping" : "Add Client & Map to Agent"}
+              </CardTitle>
             </div>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
@@ -171,13 +210,26 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
                 </p>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full h-11 sm:h-9"
-                disabled={createMutation.isPending}
-              >
-                Save Client
-              </Button>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
+                {editId && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={resetForm}
+                    className="w-full sm:w-auto h-11 sm:h-9"
+                  >
+                    <RotateCcw className="w-4 h-4 mr-1" />
+                    Cancel
+                  </Button>
+                )}
+                <Button
+                  type="submit"
+                  className="flex-1 h-11 sm:h-9"
+                  disabled={saveMutation.isPending}
+                >
+                  {editId ? "Update Client" : "Save Client"}
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
@@ -186,24 +238,45 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
       {/* Clients List Table / Card Column */}
       <div className="lg:col-span-8">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between py-3.5 sm:py-4 px-4 sm:px-6">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3.5 sm:py-4 px-4 sm:px-6">
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-[#1e3a8a]" />
               <CardTitle className="text-base sm:text-lg">Registered Clients</CardTitle>
+              <span className="text-xs text-slate-500 font-medium">
+                ({filteredClients.length} of {clients.length})
+              </span>
             </div>
-            <span className="text-xs text-slate-500 font-medium">
-              {clients.length} client(s)
-            </span>
+            <div className="relative w-full sm:w-64">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Input
+                type="text"
+                placeholder="Search name, phone, agent..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-8 h-9 text-xs"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             {/* Mobile Card List View (< md) */}
             <div className="block md:hidden divide-y divide-slate-100">
-              {clients.length === 0 ? (
+              {filteredClients.length === 0 ? (
                 <div className="text-center py-8 text-slate-500 text-sm px-4">
-                  No clients registered yet. Use the form above to add one.
+                  {searchQuery
+                    ? `No clients found matching "${searchQuery}".`
+                    : "No clients registered yet. Use the form above to add one."}
                 </div>
               ) : (
-                clients.map((c) => {
+                filteredClients.map((c) => {
                   const agent = agents.find((a) => a.id === c.agentId);
                   const totalInvested = getClientTotalInvested(c.id);
 
@@ -216,7 +289,7 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
                             {c.phone || "No mobile"}
                           </div>
                         </div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1">
                           <Button
                             variant="default"
                             size="sm"
@@ -226,6 +299,15 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
                           >
                             <Plus className="w-3.5 h-3.5 mr-1" />
                             Invest
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs px-2"
+                            onClick={() => handleEdit(c)}
+                            title="Edit Client"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
                           </Button>
                           <Button
                             variant="ghost"
@@ -278,14 +360,16 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {clients.length === 0 ? (
+                  {filteredClients.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-8 text-slate-500">
-                        No clients registered yet. Use the form on the left to add one.
+                        {searchQuery
+                          ? `No clients found matching "${searchQuery}".`
+                          : "No clients registered yet. Use the form on the left to add one."}
                       </TableCell>
                     </TableRow>
                   ) : (
-                    clients.map((c) => {
+                    filteredClients.map((c) => {
                       const agent = agents.find((a) => a.id === c.agentId);
                       const totalInvested = getClientTotalInvested(c.id);
 
@@ -323,6 +407,16 @@ export function ClientsTab({ agents, onQuickInvest }: ClientsTabProps) {
                               >
                                 <Plus className="w-3.5 h-3.5 mr-1" />
                                 Invest
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 text-xs px-2"
+                                onClick={() => handleEdit(c)}
+                                title="Edit Client Details"
+                              >
+                                <Edit3 className="w-3.5 h-3.5 mr-1" />
+                                Edit
                               </Button>
                               <Button
                                 variant="ghost"

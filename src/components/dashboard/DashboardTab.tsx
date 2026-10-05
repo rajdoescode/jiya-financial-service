@@ -1,17 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { IAgent, IInvestment, IDashboardStats } from "@/types";
 import { formatINR } from "@/lib/utils/currency";
 import { formatDisplayDate } from "@/lib/utils/date";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Download, Trash2, TrendingUp, IndianRupee, Layers, ArrowRightLeft, FileSpreadsheet } from "lucide-react";
+import {
+  Download,
+  Trash2,
+  TrendingUp,
+  IndianRupee,
+  Layers,
+  ArrowRightLeft,
+  FileSpreadsheet,
+  Search,
+  X,
+  Award,
+  PieChart,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface DashboardTabProps {
@@ -24,6 +37,7 @@ export function DashboardTab({ agents }: DashboardTabProps) {
   const [filterType, setFilterType] = useState("ALL");
   const [filterYear, setFilterYear] = useState("2026");
   const [filterMonth, setFilterMonth] = useState("09");
+  const [searchQuery, setSearchQuery] = useState("");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   // Fetch investments with query parameters
@@ -89,16 +103,72 @@ export function DashboardTab({ agents }: DashboardTabProps) {
     setDeleteTargetId(id);
   };
 
+  const confirmDelete = () => {
+    if (deleteTargetId) {
+      deleteMutation.mutate(deleteTargetId);
+      setDeleteTargetId(null);
+    }
+  };
+
+  // Filtered investments by search query
+  const filteredInvestments = useMemo(() => {
+    if (!searchQuery.trim()) return investments;
+    const q = searchQuery.toLowerCase().trim();
+    return investments.filter((tx) => {
+      const clientName = tx.client?.name?.toLowerCase() || "";
+      const agentName = tx.agent?.name?.toLowerCase() || "";
+      const scheme = tx.scheme?.toLowerCase() || "";
+      const type = tx.type?.toLowerCase() || "";
+      return (
+        clientName.includes(q) ||
+        agentName.includes(q) ||
+        scheme.includes(q) ||
+        type.includes(q)
+      );
+    });
+  }, [investments, searchQuery]);
+
+  // Top 5 Performing Agents Leaderboard
+  const topAgents = useMemo(() => {
+    const map = new Map<string, { agent: IAgent; sales: number; comm: number; count: number }>();
+    agents.forEach((ag) => {
+      map.set(ag.id, { agent: ag, sales: 0, comm: 0, count: 0 });
+    });
+
+    investments.forEach((tx) => {
+      const entry = map.get(tx.agentId);
+      if (entry) {
+        entry.sales += tx.amount;
+        entry.comm += tx.commission;
+        entry.count += 1;
+      }
+    });
+
+    return Array.from(map.values())
+      .filter((a) => a.sales > 0)
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 5);
+  }, [investments, agents]);
+
+  // Sales type distribution percentages
+  const totalSalesVal = stats?.totalSales || 0;
+  const sipPct = totalSalesVal > 0 ? Math.round(((stats?.totalSip || 0) / totalSalesVal) * 100) : 0;
+  const lumpPct = totalSalesVal > 0 ? Math.round(((stats?.totalLump || 0) / totalSalesVal) * 100) : 0;
+  const cobPct = totalSalesVal > 0 ? Math.round(((stats?.totalCob || 0) / totalSalesVal) * 100) : 0;
+  const switchPct = totalSalesVal > 0 ? Math.round(((stats?.totalSwitch || 0) / totalSalesVal) * 100) : 0;
+
+  // Export to CSV
   const handleExportCSV = () => {
-    if (!investments.length) {
-      toast.error("No transactions to export.");
+    if (filteredInvestments.length === 0) {
+      toast.error("No investments to export");
       return;
     }
 
     let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Transaction ID,Date,Client Name,Agent Name,Type,Scheme,Amount (INR),Commission Rate (%),Commission Amount (INR)\n";
+    csvContent +=
+      "Transaction ID,Date,Client Name,Agent Name,Type,Scheme,Amount (INR),Commission Rate (%),Commission Amount (INR)\n";
 
-    investments.forEach((t) => {
+    filteredInvestments.forEach((t) => {
       const cName = t.client ? t.client.name.replace(/,/g, " ") : "Client";
       const aName = t.agent ? t.agent.name.replace(/,/g, " ") : "Agent";
       const scheme = (t.scheme || "").replace(/,/g, " ");
@@ -125,7 +195,7 @@ export function DashboardTab({ agents }: DashboardTabProps) {
       case "Lumpsum":
         return <Badge variant="lumpsum">Lumpsum</Badge>;
       case "Change of Broker":
-        return <Badge variant="cob">Change of Broker</Badge>;
+        return <Badge variant="cob">COB</Badge>;
       case "Switch":
         return <Badge variant="switch">Switch</Badge>;
       default:
@@ -301,16 +371,180 @@ export function DashboardTab({ agents }: DashboardTabProps) {
         </Card>
       </div>
 
+      {/* Visual Analytics & Top Agents Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 no-print">
+        {/* Sales Type Distribution */}
+        <Card className="lg:col-span-6">
+          <CardHeader className="py-3.5 sm:py-4 px-4 sm:px-6">
+            <div className="flex items-center gap-2">
+              <PieChart className="w-4 h-4 text-[#1e3a8a]" />
+              <CardTitle className="text-sm sm:text-base">Investment Volume Distribution</CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              Portfolio split across mutual fund categories
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 pt-0 space-y-3.5">
+            {/* Multi-colored Progress Bar */}
+            <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden flex shadow-inner">
+              {sipPct > 0 && (
+                <div
+                  style={{ width: `${sipPct}%` }}
+                  className="bg-blue-600 transition-all duration-500"
+                  title={`SIP: ${sipPct}%`}
+                />
+              )}
+              {lumpPct > 0 && (
+                <div
+                  style={{ width: `${lumpPct}%` }}
+                  className="bg-amber-500 transition-all duration-500"
+                  title={`Lumpsum: ${lumpPct}%`}
+                />
+              )}
+              {cobPct > 0 && (
+                <div
+                  style={{ width: `${cobPct}%` }}
+                  className="bg-purple-600 transition-all duration-500"
+                  title={`COB: ${cobPct}%`}
+                />
+              )}
+              {switchPct > 0 && (
+                <div
+                  style={{ width: `${switchPct}%` }}
+                  className="bg-sky-500 transition-all duration-500"
+                  title={`Switch: ${switchPct}%`}
+                />
+              )}
+            </div>
+
+            {/* Legend & Breakdown Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              <div className="p-2 rounded-lg bg-blue-50/60 border border-blue-100">
+                <div className="flex items-center gap-1.5 font-semibold text-blue-900">
+                  <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
+                  SIP ({sipPct}%)
+                </div>
+                <div className="font-mono text-slate-800 font-bold mt-1 text-[11px] truncate">
+                  {formatINR(stats?.totalSip)}
+                </div>
+              </div>
+
+              <div className="p-2 rounded-lg bg-amber-50/60 border border-amber-100">
+                <div className="flex items-center gap-1.5 font-semibold text-amber-900">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                  Lump ({lumpPct}%)
+                </div>
+                <div className="font-mono text-slate-800 font-bold mt-1 text-[11px] truncate">
+                  {formatINR(stats?.totalLump)}
+                </div>
+              </div>
+
+              <div className="p-2 rounded-lg bg-purple-50/60 border border-purple-100">
+                <div className="flex items-center gap-1.5 font-semibold text-purple-900">
+                  <span className="w-2 h-2 rounded-full bg-purple-600 shrink-0" />
+                  COB ({cobPct}%)
+                </div>
+                <div className="font-mono text-slate-800 font-bold mt-1 text-[11px] truncate">
+                  {formatINR(stats?.totalCob)}
+                </div>
+              </div>
+
+              <div className="p-2 rounded-lg bg-sky-50/60 border border-sky-100">
+                <div className="flex items-center gap-1.5 font-semibold text-sky-900">
+                  <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
+                  Switch ({switchPct}%)
+                </div>
+                <div className="font-mono text-slate-800 font-bold mt-1 text-[11px] truncate">
+                  {formatINR(stats?.totalSwitch)}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Top 5 Performing Agents */}
+        <Card className="lg:col-span-6">
+          <CardHeader className="py-3.5 sm:py-4 px-4 sm:px-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Award className="w-4 h-4 text-amber-600" />
+                <CardTitle className="text-sm sm:text-base">Top Performing Agents</CardTitle>
+              </div>
+              <span className="text-xs text-slate-400 font-medium">By sales volume</span>
+            </div>
+          </CardHeader>
+          <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 pt-0">
+            {topAgents.length === 0 ? (
+              <div className="text-center py-6 text-slate-400 text-xs">
+                No agent sales recorded for this period.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {topAgents.map((item, idx) => (
+                  <div
+                    key={item.agent.id}
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors border border-slate-100 text-xs"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-5 h-5 rounded-full flex items-center justify-center font-bold font-mono text-[11px] shrink-0 bg-slate-100 text-slate-700">
+                        {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="font-semibold text-slate-900 truncate">
+                          {item.agent.name}
+                        </div>
+                        <div className="text-[10px] text-slate-400">
+                          {item.count} transaction(s)
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <div className="font-bold text-slate-900 font-mono">
+                        {formatINR(item.sales)}
+                      </div>
+                      <div className="text-[10px] font-mono text-emerald-700 font-semibold">
+                        Comm: {formatINR(item.comm)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Transactions Table Card */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between py-3 sm:py-4 px-4 sm:px-6">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 sm:py-4 px-4 sm:px-6">
           <div className="flex items-center gap-2">
             <FileSpreadsheet className="w-5 h-5 text-[#1e3a8a]" />
             <CardTitle className="text-base sm:text-lg">Investment Transactions</CardTitle>
+            <span className="text-xs text-slate-500 font-medium">
+              ({filteredInvestments.length} of {investments.length})
+            </span>
           </div>
-          <span className="text-xs text-slate-500 font-medium">
-            {investments.length} record(s)
-          </span>
+
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Input
+              type="text"
+              placeholder="Search client, scheme..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 pr-8 h-9 text-xs"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           {/* Mobile Card List View (Visible on < md) */}
@@ -319,12 +553,14 @@ export function DashboardTab({ agents }: DashboardTabProps) {
               <div className="text-center py-8 text-slate-400 text-sm">
                 Loading transactions...
               </div>
-            ) : investments.length === 0 ? (
+            ) : filteredInvestments.length === 0 ? (
               <div className="text-center py-8 text-slate-500 text-sm px-4">
-                No investments found matching the selected filters.
+                {searchQuery
+                  ? `No transactions found matching "${searchQuery}".`
+                  : "No investments found matching the selected filters."}
               </div>
             ) : (
-              investments.map((tx) => (
+              filteredInvestments.map((tx) => (
                 <div key={tx.id} className="p-3.5 space-y-2 hover:bg-slate-50/60 transition-colors">
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -393,14 +629,16 @@ export function DashboardTab({ agents }: DashboardTabProps) {
                       Loading transactions...
                     </TableCell>
                   </TableRow>
-                ) : investments.length === 0 ? (
+                ) : filteredInvestments.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={9} className="text-center py-8 text-slate-500">
-                      No investments found matching the selected filters.
+                      {searchQuery
+                        ? `No transactions found matching "${searchQuery}".`
+                        : "No investments found matching the selected filters."}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  investments.map((tx) => (
+                  filteredInvestments.map((tx) => (
                     <TableRow key={tx.id}>
                       <TableCell className="font-mono text-xs whitespace-nowrap">
                         {formatDisplayDate(tx.date)}
@@ -451,12 +689,7 @@ export function DashboardTab({ agents }: DashboardTabProps) {
         variant="destructive"
         icon="danger"
         isLoading={deleteMutation.isPending}
-        onConfirm={() => {
-          if (deleteTargetId) {
-            deleteMutation.mutate(deleteTargetId);
-            setDeleteTargetId(null);
-          }
-        }}
+        onConfirm={confirmDelete}
       />
     </div>
   );
