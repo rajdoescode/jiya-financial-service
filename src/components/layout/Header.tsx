@@ -6,6 +6,14 @@ import Image from "next/image";
 import { AuthUserSession } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { AdminPasswordDialog } from "./AdminPasswordDialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
@@ -15,6 +23,7 @@ import {
   Upload,
   LogOut,
   User as UserIcon,
+  MoreVertical,
 } from "lucide-react";
 
 interface HeaderProps {
@@ -97,98 +106,149 @@ export function Header({ user, onDataRestored }: HeaderProps) {
 
   return (
     <>
-      <header className="bg-[#1e3a8a] text-white px-3 sm:px-6 py-2.5 sm:py-3.5 flex flex-wrap justify-between items-center gap-2 sm:gap-3 shadow-md">
+      <header className="bg-[#1e3a8a] text-white px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 shadow-md w-full no-print">
+        {/* Left: Brand & Logo */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="bg-white p-1 rounded-xl shadow-md flex items-center justify-center shrink-0">
             <Image
               src="/logo.png"
               alt="Jiya Financial Services"
-              width={34}
-              height={34}
+              width={32}
+              height={32}
               priority
-              className="object-contain w-7 h-7 sm:w-9 sm:h-9"
+              className="object-contain w-7 h-7 sm:w-8 sm:h-8"
             />
           </div>
           <div className="min-w-0">
-            <h1 className="text-sm sm:text-xl font-bold tracking-tight text-white leading-tight truncate">
+            <h1 className="text-sm sm:text-lg font-bold tracking-tight text-white leading-tight truncate">
               Jiya Financial Services
             </h1>
-            <p className="text-[10px] sm:text-xs text-blue-100/80 hidden xs:block truncate">
+            <p className="text-[10px] sm:text-xs text-blue-100/80 hidden md:block truncate">
               Mutual Fund Sales & Commission Portal
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2.5 flex-nowrap shrink-0 no-print ml-auto">
+        {/* Right: Actions & User */}
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-nowrap shrink-0">
           {/* User Pill */}
-          <div className="flex items-center gap-1 sm:gap-2 bg-white/15 px-2 sm:px-3 py-1 rounded-full border border-white/20 text-xs font-medium">
+          <div className="flex items-center gap-1.5 bg-white/15 px-2 sm:px-3 py-1 rounded-full border border-white/20 text-xs font-medium">
             <Badge
               variant={isAdmin ? "admin" : "employee"}
-              className="px-1.5 py-0 text-[10px]"
+              className="px-1.5 py-0 text-[10px] font-bold"
             >
               {isAdmin ? "Admin" : "Emp"}
             </Badge>
-            <span className="flex items-center gap-1 font-semibold text-white max-w-[80px] sm:max-w-none truncate">
+            <span className="hidden sm:flex items-center gap-1 font-semibold text-white max-w-[120px] truncate">
               <UserIcon className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">{user.name || user.username}</span>
             </span>
           </div>
 
-          {/* Admin-only buttons */}
+          {/* Desktop-only Admin buttons (visible on >= md) */}
           {isAdmin && (
-            <>
+            <div className="hidden md:flex items-center gap-1.5">
               <Button
                 variant="secondary"
                 size="sm"
-                className="h-8 px-2 sm:px-2.5 text-xs bg-white/10 hover:bg-white/20 text-white border-white/20"
+                className="h-8 px-2.5 text-xs bg-white/10 hover:bg-white/20 text-white border-white/20"
                 onClick={() => setPasswordDialogOpen(true)}
                 title="Change Admin Password"
               >
-                <KeyRound className="w-3.5 h-3.5 sm:mr-1" />
-                <span className="hidden md:inline">Change Password</span>
+                <KeyRound className="w-3.5 h-3.5 mr-1" />
+                Password
               </Button>
 
               <Button
                 variant="secondary"
                 size="sm"
-                className="h-8 px-2 sm:px-2.5 text-xs bg-white/10 hover:bg-white/20 text-white border-white/20"
+                className="h-8 px-2.5 text-xs bg-white/10 hover:bg-white/20 text-white border-white/20"
                 onClick={handleBackup}
                 title="Backup all data to JSON"
               >
-                <Download className="w-3.5 h-3.5 sm:mr-1" />
-                <span className="hidden sm:inline">Backup</span>
+                <Download className="w-3.5 h-3.5 mr-1" />
+                Backup
               </Button>
 
               <Button
                 variant="secondary"
                 size="sm"
-                className="h-8 px-2 sm:px-2.5 text-xs bg-white/10 hover:bg-white/20 text-white border-white/20"
+                className="h-8 px-2.5 text-xs bg-white/10 hover:bg-white/20 text-white border-white/20"
                 onClick={() => fileInputRef.current?.click()}
                 title="Restore data from JSON backup"
               >
-                <Upload className="w-3.5 h-3.5 sm:mr-1" />
-                <span className="hidden sm:inline">Restore</span>
+                <Upload className="w-3.5 h-3.5 mr-1" />
+                Restore
               </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="hidden"
-                accept=".json"
-                onChange={handleRestoreFileChange}
-              />
-            </>
+            </div>
           )}
 
-          {/* Logout */}
+          {/* Mobile-only Admin Dropdown Menu (visible on < md) */}
+          {isAdmin && (
+            <div className="block md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="h-8 w-8 p-0 bg-white/10 hover:bg-white/20 text-white border-white/20 rounded-lg"
+                    title="Admin Actions Menu"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white p-1.5 rounded-xl shadow-2xl">
+                  <DropdownMenuLabel className="text-xs text-slate-500 font-semibold px-2 py-1">
+                    Admin Tools ({user.name || user.username})
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setPasswordDialogOpen(true)}
+                    className="cursor-pointer py-2 px-2.5 text-xs rounded-lg hover:bg-blue-50 text-slate-800"
+                  >
+                    <KeyRound className="w-4 h-4 mr-2 text-[#1e3a8a]" />
+                    Change Admin Password
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleBackup}
+                    className="cursor-pointer py-2 px-2.5 text-xs rounded-lg hover:bg-emerald-50 text-slate-800"
+                  >
+                    <Download className="w-4 h-4 mr-2 text-emerald-600" />
+                    Export Backup (JSON)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => fileInputRef.current?.click()}
+                    className="cursor-pointer py-2 px-2.5 text-xs rounded-lg hover:bg-sky-50 text-slate-800"
+                  >
+                    <Upload className="w-4 h-4 mr-2 text-sky-600" />
+                    Restore Backup (JSON)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+
+          {/* Hidden File Input for Restore */}
+          {isAdmin && (
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept=".json"
+              onChange={handleRestoreFileChange}
+            />
+          )}
+
+          {/* Logout Button (always visible in one tap) */}
           <Button
             variant="destructive"
             size="sm"
-            className="h-8 px-2 sm:px-3 text-xs bg-red-600/90 hover:bg-red-700 shrink-0"
+            className="h-8 px-2 sm:px-2.5 text-xs bg-red-600/90 hover:bg-red-700 shrink-0 rounded-lg"
             onClick={() => setLogoutDialogOpen(true)}
             title="Sign Out"
           >
             <LogOut className="w-3.5 h-3.5 sm:mr-1" />
-            <span className="hidden xs:inline">Logout</span>
+            <span className="hidden sm:inline">Logout</span>
           </Button>
         </div>
       </header>
